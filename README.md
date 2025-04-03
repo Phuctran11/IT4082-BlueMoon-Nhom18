@@ -1,6 +1,7 @@
 # Project-IT4082
 Bài tập lớn Kĩ thuật phần mềm
-Thành viên nhóm:
+Nhóm 18
+Thành viên:
 - Nguyễn Mạnh Quân - 20225758 - Nhóm trưởng
 - Cao Đức Anh - 20225781
 - Đỗ Tuấn Minh - 20225741
