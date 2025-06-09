@@ -1,3 +1,7 @@
+/*
+    * hàm curd cho hộ khẩu
+*/
+const { Op, fn, col } = require('sequelize');
 const Household = require('../models/Household');
 const apiResponse = require('../utils/apiResponse');
 
@@ -79,5 +83,54 @@ exports.deleteHousehold = async (req, res) => {
     return apiResponse.success(res, null, 'Xóa hộ khẩu thành công');
   } catch (error) {
     return apiResponse.error(res, error.message);
+  }
+};
+
+/**
+ * Hàm thống kê hộ khẩu theo tiêu chí lọc:
+ * - address (địa chỉ/khu vực)
+ * - apartmentType (loại căn hộ)
+ * - minMemberCount, maxMemberCount (số thành viên)
+ */
+exports.getHouseholdStatistics = async (req, res) => {
+  try {
+    const { address, apartmentType, minMemberCount, maxMemberCount } = req.query;
+
+    let whereClause = {};
+
+    if (address) {
+      whereClause.address = { [Op.iLike]: `%${address}%` };
+    }
+
+    if (apartmentType) {
+      whereClause.apartmentType = apartmentType;
+    }
+
+    if (minMemberCount || maxMemberCount) {
+      whereClause.memberCount = {};
+      if (minMemberCount) whereClause.memberCount[Op.gte] = parseInt(minMemberCount);
+      if (maxMemberCount) whereClause.memberCount[Op.lte] = parseInt(maxMemberCount);
+    }
+
+    const stats = await Household.findAll({
+      attributes: [
+        'address',
+        'apartmentType',
+        [fn('COUNT', col('id')), 'householdCount'],
+        [fn('SUM', col('memberCount')), 'totalMembers'],
+      ],
+      where: whereClause,
+      group: ['address', 'apartmentType'],
+      order: [['address', 'ASC'], ['apartmentType', 'ASC']],
+      raw: true,
+    });
+
+    if (!stats.length) {
+      return apiResponse.error(res, 'Không tìm thấy hộ khẩu nào phù hợp', 404);
+    }
+
+    return apiResponse.success(res, stats);
+  } catch (error) {
+    return apiResponse.error(res, 'Lỗi khi thống kê hộ khẩu: ' + error.message);
   }
 };
