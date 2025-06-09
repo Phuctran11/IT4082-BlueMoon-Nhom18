@@ -134,3 +134,57 @@ exports.getHouseholdStatistics = async (req, res) => {
     return apiResponse.error(res, 'Lỗi khi thống kê hộ khẩu: ' + error.message);
   }
 };
+
+/**
+ * Tìm kiếm hộ khẩu theo nhiều tiêu chí:
+ * - householdCode (mã hộ khẩu)
+ * - headOfHousehold (tên chủ hộ)
+ * - address (địa chỉ)
+ * - apartmentType (loại căn hộ)
+ * - minMemberCount, maxMemberCount (số thành viên)
+ */
+
+// Hàm truy vấn hộ khẩu theo nhiều tiêu chí
+exports.searchHouseholds = async (req, res) => {
+  try {
+    const { householdCode, headOfHousehold, address, apartmentType, minMemberCount, maxMemberCount } = req.query;
+
+    // Build điều kiện tìm kiếm
+    let whereClause = {};
+
+    if (householdCode) {
+      // Mã hộ khẩu: chữ + số, không ký tự đặc biệt, tìm chính xác hoặc chứa
+      // Ở đây giả sử tìm chứa (like) để linh hoạt
+      whereClause.householdCode = { [Op.iLike]: `%${householdCode}%` };
+    }
+
+    if (headOfHousehold) {
+      // Tên chủ hộ: không ký tự đặc biệt, tìm chứa
+      whereClause.headOfHousehold = { [Op.iLike]: `%${headOfHousehold}%` };
+    }
+
+    if (address) {
+      whereClause.address = { [Op.iLike]: `%${address}%` };
+    }
+
+    if (apartmentType) {
+      whereClause.apartmentType = apartmentType;
+    }
+
+    if (minMemberCount || maxMemberCount) {
+      whereClause.memberCount = {};
+      if (minMemberCount) whereClause.memberCount[Op.gte] = parseInt(minMemberCount);
+      if (maxMemberCount) whereClause.memberCount[Op.lte] = parseInt(maxMemberCount);
+    }
+
+    const households = await Household.findAll({ where: whereClause });
+
+    if (!households.length) {
+      return apiResponse.error(res, 'Không tìm thấy hộ khẩu nào.', 404);
+    }
+
+    return apiResponse.success(res, households);
+  } catch (error) {
+    return apiResponse.error(res, 'Lỗi khi truy vấn hộ khẩu: ' + error.message);
+  }
+};
