@@ -184,3 +184,79 @@ exports.statisticsResidents = async (req, res) => {
     return apiResponse.error(res, 'Lỗi khi thống kê nhân khẩu: ' + error.message);
   }
 };
+
+
+/**
+ * Truy vấn thông tin nhân khẩu theo tiêu chí:
+ * - fullName (họ tên, có thể tìm kiếm gần đúng)
+ * - householdCode (mã hộ khẩu)
+ * - cccd (số căn cước công dân)
+ * - relation (quan hệ với chủ hộ)
+ */
+exports.queryResidents = async (req, res) => {
+  try {
+    const { fullName, householdCode, cccd, relation } = req.query;
+
+    // Kiểm tra ít nhất một tiêu chí được nhập
+    if (!fullName && !householdCode && !cccd && !relation) {
+      return apiResponse.error(res, 'Vui lòng nhập ít nhất một tiêu chí tìm kiếm.');
+    }
+
+    // Điều kiện truy vấn nhân khẩu
+    const residentWhere = {};
+
+    if (fullName) {
+      // Tìm gần đúng họ tên (case-insensitive)
+      residentWhere.fullName = { [Op.iLike]: `%${fullName}%` };
+    }
+
+    if (cccd) {
+      // CCCD phải đúng 12 chữ số, duy nhất
+      if (!/^\d{12}$/.test(cccd)) {
+        return apiResponse.error(res, 'Số CCCD phải gồm 12 chữ số.');
+      }
+      residentWhere.cccd = cccd;
+    }
+
+    if (relation) {
+      // Quan hệ với chủ hộ, ví dụ: Chủ hộ, Vợ, Con, Khác
+      residentWhere.relation = relation;
+    }
+
+    // Nếu có mã hộ khẩu, cần join với bảng Household để lấy id
+    let householdIds = null;
+    if (householdCode) {
+      const households = await Household.findAll({
+        where: { code: householdCode },
+        attributes: ['id'],
+        raw: true,
+      });
+      if (households.length === 0) {
+        // Không có hộ khẩu phù hợp
+        return apiResponse.success(res, [], 'Không có kết quả phù hợp.');
+      }
+      householdIds = households.map(h => h.id);
+      residentWhere.householdId = { [Op.in]: householdIds };
+    }
+
+    // Truy vấn nhân khẩu với điều kiện
+    const residents = await Resident.findAll({
+      where: residentWhere,
+      include: [{
+        model: Household,
+        attributes: ['code', 'address'],
+      }],
+      order: [['fullName', 'ASC']],
+    });
+
+    if (residents.length === 0) {
+      return apiResponse.success(res, [], 'Không có kết quả phù hợp.');
+    }
+
+    // Trả về danh sách kết quả
+    return apiResponse.success(res, residents);
+
+  } catch (error) {
+    return apiResponse.error(res, 'Lỗi khi truy vấn nhân khẩu: ' + error.message);
+  }
+};

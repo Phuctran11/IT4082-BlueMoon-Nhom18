@@ -56,4 +56,7 @@ router.delete('/:id', residentController.deleteResident);
 // Route thống kê nhân khẩu
 router.get('/statistics', residentController.statisticsResidents);
 
+// Route truy vấn nhân khẩu
+router.get('/query', residentController.queryResidents);
+
 module.exports = router;
