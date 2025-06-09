@@ -53,4 +53,7 @@ router.put('/:id', validateResident, residentController.updateResident);
 // Xóa nhân khẩu
 router.delete('/:id', residentController.deleteResident);
 
+// Route thống kê nhân khẩu
+router.get('/statistics', residentController.statisticsResidents);
+
 module.exports = router;

@@ -1,4 +1,6 @@
+const { Op } = require('sequelize');
 const Resident = require('../models/Resident');
+const Household = require('../models/Household');
 const apiResponse = require('../utils/apiResponse');
 
 // Lấy danh sách nhân khẩu theo hộ khẩu
@@ -70,5 +72,115 @@ exports.deleteResident = async (req, res) => {
     return apiResponse.success(res, null, 'Xóa nhân khẩu thành công');
   } catch (error) {
     return apiResponse.error(res, 'Lỗi khi xóa nhân khẩu: ' + error.message);
+  }
+};
+
+
+
+// Hàm tính tuổi
+function calculateAge(birthDate) {
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+// Hàm nhóm tuổi
+function getAgeGroup(age) {
+  if (age < 18) return '<18';
+  if (age <= 35) return '18-35';
+  if (age <= 60) return '36-60';
+  return '>60';
+}
+
+// Hàm thống kê nhân khẩu (thêm mới)
+exports.statisticsResidents = async (req, res) => {
+  try {
+    const { block, floor, gender, ageGroup } = req.query;
+
+    // Điều kiện lọc hộ khẩu
+    const householdWhere = {};
+    if (block) householdWhere.block = block;
+    if (floor) householdWhere.floor = floor;
+
+    const households = await Household.findAll({
+      where: householdWhere,
+      attributes: ['id'],
+      raw: true,
+    });
+
+    if (households.length === 0) {
+      return apiResponse.success(res, [], 'Không có kết quả phù hợp');
+    }
+
+    const householdIds = households.map(h => h.id);
+
+    // Lấy nhân khẩu theo hộ khẩu
+    let residents = await Resident.findAll({
+      where: {
+        householdId: { [Op.in]: householdIds },
+      },
+      attributes: ['birthDate', 'gender'],
+      raw: true,
+    });
+
+    if (residents.length === 0) {
+      return apiResponse.success(res, [], 'Không có kết quả phù hợp');
+    }
+
+    // Lọc theo giới tính nếu có
+    if (gender) {
+      residents = residents.filter(r => r.gender === gender);
+    }
+
+    // Tính tuổi và nhóm tuổi
+    residents = residents.map(r => {
+      const age = calculateAge(r.birthDate);
+      return {
+        ...r,
+        age,
+        ageGroup: getAgeGroup(age),
+      };
+    });
+
+    // Lọc theo nhóm tuổi nếu có
+    if (ageGroup) {
+      residents = residents.filter(r => r.ageGroup === ageGroup);
+    }
+
+    if (residents.length === 0) {
+      return apiResponse.success(res, [], 'Không có kết quả phù hợp');
+    }
+
+    // Thống kê tổng số nhân khẩu
+    const totalResidents = residents.length;
+
+    // Thống kê theo nhóm tuổi
+    const countByAgeGroup = residents.reduce((acc, r) => {
+      acc[r.ageGroup] = (acc[r.ageGroup] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Thống kê theo giới tính
+    const countByGender = residents.reduce((acc, r) => {
+      acc[r.gender] = (acc[r.gender] || 0) + 1;
+      return acc;
+    }, {});
+
+    const result = {
+      totalResidents,
+      countByAgeGroup,
+      countByGender,
+      criteria: { block, floor, gender, ageGroup },
+    };
+
+    return apiResponse.success(res, result);
+
+  } catch (error) {
+    return apiResponse.error(res, 'Lỗi khi thống kê nhân khẩu: ' + error.message);
   }
 };
