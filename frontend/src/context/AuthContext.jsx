@@ -16,29 +16,42 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 
-    if (storedToken && storedUser) {
+    if (storedToken && storedUser && storedUser !== 'undefined') {
+    try {
       setUser(JSON.parse(storedUser));
       setToken(storedToken);
       setIsAuthenticated(true);
+    } catch (e) {
+      // Nếu có lỗi parse, xóa dữ liệu hỏng
+      console.error("Failed to parse user from localStorage", e);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
     }
-    setLoading(false); // Kết thúc kiểm tra
-  }, []);
+  }
+  setLoading(false);
+}, []);
 
   const login = async (username, password) => {
     try {
       const response = await authService.login({ username, password });
-      const { token, user } = response.data;
+      // Giả sử API trả về { success, message, data: { token, user } }
+      const { token, user } = response.data.data;
 
-      // Lưu vào state và localStorage
-      setToken(token);
-      setUser(user);
-      setIsAuthenticated(true);
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      // KIỂM TRA KỸ DỮ LIỆU TRƯỚC KHI LƯU
+      if (token && user) {
+        setToken(token);
+        setUser(user);
+        setIsAuthenticated(true);
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+      } else {
+        // Nếu API trả về thành công nhưng thiếu token hoặc user, đó là một lỗi
+        throw new Error('Dữ liệu đăng nhập không hợp lệ từ server.');
+      }
       
       return response;
     } catch (error) {
-      // Ném lỗi ra để component có thể bắt và hiển thị
+      console.error("Login failed:", error);
       throw error;
     }
   };

@@ -1,42 +1,27 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import LoginPage from '../pages/LoginPage'; // Import trang mới
-import RegisterPage from '../pages/RegisterPage'; // Import trang mới
+import LoginPage from '../pages/LoginPage';
+import RegisterPage from '../pages/RegisterPage';
+import DashboardPage from '../pages/DashboardPage'; // Import trang mới
+import FeeTypeManagement from '../components/finance/FeeTypeManagement';
 import ProtectedRoute from './ProtectedRoute';
-import { useAuth } from '../context/AuthContext';
-
-const DashboardPage = () => <div>Chào mừng đến Dashboard!</div>;
-const NotFoundPage = () => <div>404 - Trang không tồn tại</div>;
+import MainLayout from '../layouts/MainLayout';
 
 const AppRoutes = () => {
-  const { isAuthenticated } = useAuth();
-
   return (
     <Routes>
-      {/* Nếu đã đăng nhập, vào /login sẽ bị điều hướng đến /dashboard */}
-      <Route 
-        path="/login" 
-        element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />} 
-      />
-      <Route 
-        path="/register" 
-        element={isAuthenticated ? <Navigate to="/dashboard" /> : <RegisterPage />} 
-      />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
-      {/* Trang chủ: nếu chưa đăng nhập thì vào /login, nếu rồi thì vào /dashboard */}
-      <Route 
-        path="/" 
-        element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} 
-      />
-
-      {/* Các routes được bảo vệ */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        {/* Thêm các routes cần bảo vệ khác ở đây */}
+        <Route element={<MainLayout />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/fee-types" element={<FeeTypeManagement />} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        </Route>
       </Route>
-
-      {/* Route cho trang không tồn tại */}
-      <Route path="*" element={<NotFoundPage />} />
+      
+      <Route path="*" element={<div>404 Not Found</div>} />
     </Routes>
   );
 };
