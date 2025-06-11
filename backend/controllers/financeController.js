@@ -1,4 +1,6 @@
-const FeeType = require('../models/FeeType');
+// THAY ĐỔI Ở ĐÂY: Import model và service
+const { FeeType } = require('../models');
+const invoiceService = require('../services/invoiceService');
 
 // CREATE a new FeeType
 exports.createFeeType = async (req, res) => {
@@ -59,10 +61,27 @@ exports.deleteFeeType = async (req, res) => {
     if (!feeType) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy loại phí.' });
     }
-    // Thêm logic kiểm tra xem phí này đã được dùng chưa ở đây (sẽ làm ở các bước sau)
     await feeType.destroy();
     res.status(200).json({ success: true, message: 'Xóa loại phí thành công!' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+  }
+};
+
+// GENERATE INVOICES for a FeePeriod
+exports.generateInvoices = async (req, res) => {
+  try {
+    const { feePeriodId } = req.params;
+    const { feeTypeId } = req.body;
+
+    if (!feeTypeId) {
+      return res.status(400).json({ success: false, message: 'Vui lòng chọn một loại phí để áp dụng.' });
+    }
+
+    const result = await invoiceService.generateInvoicesForPeriod(feePeriodId, feeTypeId);
+
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };

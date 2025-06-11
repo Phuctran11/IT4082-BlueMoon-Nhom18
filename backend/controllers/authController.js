@@ -1,7 +1,9 @@
-const User = require('../models/User');
+// THAY ĐỔI Ở ĐÂY: Import User từ file index chung của models
+const { User } = require('../models');
 const { comparePassword } = require('../utils/passwordUtils');
 const { generateToken } = require('../utils/jwtUtils');
 
+// Logic bên trong các hàm không cần thay đổi, vì nó đã đúng
 exports.register = async (req, res) => {
   try {
     const { username, password, fullName } = req.body;
@@ -15,7 +17,6 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại.' });
     }
 
-    // Mật khẩu sẽ được hash tự động bởi hook trong model
     const newUser = await User.create({ username, password, fullName });
 
     res.status(201).json({
@@ -37,14 +38,12 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không đúng.' });
     }
 
-    // Sử dụng comparePassword từ utils
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không đúng.' });
     }
 
     const payload = { id: user.id, username: user.username };
-    // Sử dụng generateToken từ utils
     const token = generateToken(payload);
 
     res.status(200).json({

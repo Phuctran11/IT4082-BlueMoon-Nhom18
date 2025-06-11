@@ -2,9 +2,10 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const sequelize = require('./config/db'); // Đảm bảo file config/db.js tồn tại và đúng
+const db = require('./models');
+ // Đảm bảo file config/db.js tồn tại và đúng
 const mainRouter = require('./routes');   // Đảm bảo file routes/index.js tồn tại và đúng
-
+require('./models');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -17,7 +18,7 @@ app.use('/api', mainRouter);
 
 const startServer = async () => {
   try {
-    await sequelize.authenticate();
+    await db.sequelize.authenticate();
     console.log('>>>> Kết nối CSDL thành công!');
 
     // THAY ĐỔI Ở ĐÂY: Thêm '0.0.0.0'
