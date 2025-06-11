@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import * as feeService from '../../services/feeService';
+import * as feeService from '../services/feeService';
 import './FeeTypeManagement.css'; // Sử dụng file CSS mới
 
 const FeeTypeManagement = () => {

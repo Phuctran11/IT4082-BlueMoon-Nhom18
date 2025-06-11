@@ -3,12 +3,6 @@ const router = express.Router();
 const financeController = require('../controllers/financeController');
 // const { protect, authorize } = require('../middleware/authMiddleware'); // Sẽ thêm sau
 
-// ======================= TRẠM KIỂM SOÁT DEBUG =======================
-router.use((req, res, next) => {
-  console.log(`>>>> [DEBUG] Request đã vào financeRoutes! Method: ${req.method}, URL: ${req.originalUrl}`);
-  next(); // Quan trọng: Cho phép request đi tiếp đến các route bên dưới
-});
-// ====================================================================
 
 
 // Áp dụng middleware để bảo vệ tất cả các route bên dưới

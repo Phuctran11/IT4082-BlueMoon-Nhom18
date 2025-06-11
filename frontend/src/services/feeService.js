@@ -1,33 +1,16 @@
-// src/services/feeService.js
-
-import axios from 'axios';
-
-// Tạo một instance của axios với cấu hình chung
-const apiClient = axios.create({
-  // Sử dụng biến môi trường đã cấu hình
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-});
-
-// Tự động đính kèm token vào mỗi request
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+import apiClient from './api';
 
 // --- CÁC HÀM CRUD CHO LOẠI PHÍ ---
 
 export const getAllFeeTypes = () => apiClient.get('/fee-types');
 
+// SỬA Ở ĐÂY: Dùng dấu backtick ` thay vì /
+export const getFeeTypeById = (id) => apiClient.get(`/fee-types/${id}`);
+
 export const createFeeType = (feeTypeData) => apiClient.post('/fee-types', feeTypeData);
 
+// SỬA Ở ĐÂY: Dùng dấu backtick ` thay vì /
 export const updateFeeType = (id, feeTypeData) => apiClient.put(`/fee-types/${id}`, feeTypeData);
 
+// SỬA Ở ĐÂY: Dùng dấu backtick ` thay vì /
 export const deleteFeeType = (id) => apiClient.delete(`/fee-types/${id}`);

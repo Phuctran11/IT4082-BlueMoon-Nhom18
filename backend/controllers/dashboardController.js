@@ -1,16 +1,14 @@
-const User = require('../models/User'); // Giả sử nhân khẩu là User
-const Household = require('../models/Household'); // Giả sử bạn có model Hộ khẩu
+// THAY ĐỔI Ở ĐÂY: Import các model cần thiết
+const { User, Household, Resident } = require('../models');
 
 // Lấy các chỉ số thống kê chính cho Dashboard
 exports.getDashboardStats = async (req, res) => {
   try {
-    // Chạy các câu lệnh đếm song song để tăng hiệu suất
     const [residentCount, householdCount] = await Promise.all([
-      User.count(), // Đếm tổng số người dùng (coi như dân cư)
+      Resident.count(), // Đếm tổng số nhân khẩu
       Household.count() // Đếm tổng số hộ khẩu
     ]);
 
-    // Giả lập dữ liệu "Cập nhật gần đây"
     const recentActivities = [
       { id: 1, text: 'Kế toán đã tạo đợt thu phí tháng 6/2025.', time: '1 giờ trước' },
       { id: 2, text: 'Tổ trưởng đã thêm hộ khẩu mới: A-1205.', time: '3 giờ trước' },

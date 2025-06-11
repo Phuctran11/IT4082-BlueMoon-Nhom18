@@ -1,39 +1,38 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db'); // Giả sử file kết nối DB của bạn là db.js
+'use strict';
+const { Model } = require('sequelize');
 const { hashPassword } = require('../utils/passwordUtils');
 
-const User = sequelize.define('User', {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-  },
-  username: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    field: 'password_hash' // <-- THÊM DÒNG NÀY ĐỂ ÁNH XẠ ĐÚNG TÊN CỘT
-  },
-  fullName: {
-    type: DataTypes.STRING,
-    field: 'full_name',
-    allowNull: false,
-  },
-  // Thêm các trường khác từ file SQL của bạn...
-}, {
-  tableName: 'users',
-  timestamps: false,
-  hooks: {
-    beforeCreate: async (user) => {
-      if (user.password) {
-        user.password = await hashPassword(user.password);
-      }
-    },
-  },
-});
-
-module.exports = User;
+module.exports = (sequelize, DataTypes) => {
+  class User extends Model {
+    static associate(models) {
+      this.belongsToMany(models.Role, {
+        through: models.UserRole, // Sử dụng model trung gian
+        foreignKey: 'userId',
+        otherKey: 'roleId',
+      });
+      this.hasMany(models.Household, {
+        foreignKey: 'ownerId',
+        as: 'OwnedHouseholds'
+      });
+    }
+  }
+  User.init({
+    username: { type: DataTypes.STRING, allowNull: false, unique: true },
+    password: { type: DataTypes.STRING, allowNull: false },
+    fullName: { type: DataTypes.STRING, field: 'full_name', allowNull: false },
+  }, {
+    sequelize,
+    modelName: 'User',
+    tableName: 'users',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+    hooks: {
+      beforeCreate: async (user) => {
+        if (user.password) {
+          user.password = await hashPassword(user.password);
+        }
+      },
+    }
+  });
+  return User;
+};
