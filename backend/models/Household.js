@@ -1,48 +1,52 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db'); 
+const sequelize = require('../config/db');
+const User = require('./User');
 
-const Household = sequelize.define('Household', {
+const Household = sequelize.define('household', {
   id: {
-    type: DataTypes.UUID, 
-    defaultValue: DataTypes.UUIDV4,
+    type: DataTypes.INTEGER,
     primaryKey: true,
+    autoIncrement: true,
   },
-  householdCode: {
-    type: DataTypes.STRING,
+  apartmentCode: {
+    type: DataTypes.STRING(50),
     allowNull: false,
     unique: true,
-    validate: {
-      is: /^[a-zA-Z0-9]+$/i, // chữ + số, không ký tự đặc biệt
-    },
   },
-  headOfHousehold: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-    validate: {
-      is: /^[a-zA-Z0-9\sÀ-ỹ]+$/i,
-      len: [1, 100],
-    },
-  },
-  address: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
-  },
-  memberCount: {
+  ownerId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    validate: {
-      min: 1,
-      max: 10,
-      isInt: true,
+    allowNull: true,
+    references: {
+      model: User,
+      key: 'id',
     },
+    onDelete: 'SET NULL',
   },
-  apartmentType: {
-    type: DataTypes.ENUM('Studio', '1 phòng ngủ', '2 phòng ngủ', '3 phòng ngủ', 'Penhouse'),
+  area: {
+    type: DataTypes.NUMERIC(10, 2),
+    allowNull: true,
+  },
+  status: {
+    type: DataTypes.STRING(50),
     allowNull: false,
+    defaultValue: 'occupied',
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    field: 'created_at',
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    field: 'updated_at',
   },
 }, {
   tableName: 'households',
   timestamps: true,
+  underscored: true,
 });
+
+Household.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
 
 module.exports = Household;

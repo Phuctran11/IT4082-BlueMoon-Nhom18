@@ -1,10 +1,8 @@
-/*
-    * hàm curd cho hộ khẩu
-*/
 const { Op, fn, col } = require('sequelize');
 const Household = require('../models/Household');
 const apiResponse = require('../utils/apiResponse');
 
+// Lấy tất cả hộ khẩu
 exports.getAllHouseholds = async (req, res) => {
   try {
     const households = await Household.findAll();
@@ -14,21 +12,22 @@ exports.getAllHouseholds = async (req, res) => {
   }
 };
 
+// Tạo hộ khẩu mới
 exports.createHousehold = async (req, res) => {
   try {
-    const { householdCode, headOfHousehold, address, memberCount, apartmentType } = req.body;
+    const { apartmentCode, ownerId, area, status } = req.body;
 
-    const existing = await Household.findOne({ where: { householdCode } });
+    // Kiểm tra mã căn hộ trùng
+    const existing = await Household.findOne({ where: { apartmentCode } });
     if (existing) {
-      return apiResponse.error(res, 'Mã hộ khẩu đã tồn tại', 400);
+      return apiResponse.error(res, 'Mã căn hộ đã tồn tại', 400);
     }
 
     const household = await Household.create({
-      householdCode,
-      headOfHousehold,
-      address,
-      memberCount,
-      apartmentType,
+      apartmentCode,
+      ownerId,
+      area,
+      status,
     });
 
     return apiResponse.success(res, household, 'Tạo hộ khẩu thành công', 201);
@@ -37,6 +36,7 @@ exports.createHousehold = async (req, res) => {
   }
 };
 
+// Lấy hộ khẩu theo id
 exports.getHouseholdById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -50,12 +50,14 @@ exports.getHouseholdById = async (req, res) => {
   }
 };
 
+// Cập nhật hộ khẩu
 exports.updateHousehold = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
 
-    if (updateData.householdCode) delete updateData.householdCode;
+    // Không cho cập nhật apartmentCode
+    if (updateData.apartmentCode) delete updateData.apartmentCode;
 
     const household = await Household.findByPk(id);
     if (!household) {
@@ -70,6 +72,7 @@ exports.updateHousehold = async (req, res) => {
   }
 };
 
+// Xóa hộ khẩu
 exports.deleteHousehold = async (req, res) => {
   try {
     const { id } = req.params;
@@ -86,47 +89,36 @@ exports.deleteHousehold = async (req, res) => {
   }
 };
 
-/**
- * Hàm thống kê hộ khẩu theo tiêu chí lọc:
- * - address (địa chỉ/khu vực)
- * - apartmentType (loại căn hộ)
- * - minMemberCount, maxMemberCount (số thành viên)
- */
+// Thống kê hộ khẩu theo điều kiện (ví dụ theo status, diện tích, ...)
 exports.getHouseholdStatistics = async (req, res) => {
   try {
-    const { address, apartmentType, minMemberCount, maxMemberCount } = req.query;
+    const { status, minArea, maxArea } = req.query;
 
     let whereClause = {};
 
-    if (address) {
-      whereClause.address = { [Op.iLike]: `%${address}%` };
+    if (status) {
+      whereClause.status = status;
     }
 
-    if (apartmentType) {
-      whereClause.apartmentType = apartmentType;
-    }
-
-    if (minMemberCount || maxMemberCount) {
-      whereClause.memberCount = {};
-      if (minMemberCount) whereClause.memberCount[Op.gte] = parseInt(minMemberCount);
-      if (maxMemberCount) whereClause.memberCount[Op.lte] = parseInt(maxMemberCount);
+    if (minArea || maxArea) {
+      whereClause.area = {};
+      if (minArea) whereClause.area[Op.gte] = parseFloat(minArea);
+      if (maxArea) whereClause.area[Op.lte] = parseFloat(maxArea);
     }
 
     const stats = await Household.findAll({
       attributes: [
-        'address',
-        'apartmentType',
+        'status',
         [fn('COUNT', col('id')), 'householdCount'],
-        [fn('SUM', col('memberCount')), 'totalMembers'],
+        [fn('SUM', col('area')), 'totalArea'],
       ],
       where: whereClause,
-      group: ['address', 'apartmentType'],
-      order: [['address', 'ASC'], ['apartmentType', 'ASC']],
+      group: ['status'],
       raw: true,
     });
 
     if (!stats.length) {
-      return apiResponse.error(res, 'Không tìm thấy hộ khẩu nào phù hợp', 404);
+      return apiResponse.error(res, 'Không tìm thấy hộ khẩu phù hợp', 404);
     }
 
     return apiResponse.success(res, stats);
@@ -135,46 +127,29 @@ exports.getHouseholdStatistics = async (req, res) => {
   }
 };
 
-/**
- * Tìm kiếm hộ khẩu theo nhiều tiêu chí:
- * - householdCode (mã hộ khẩu)
- * - headOfHousehold (tên chủ hộ)
- * - address (địa chỉ)
- * - apartmentType (loại căn hộ)
- * - minMemberCount, maxMemberCount (số thành viên)
- */
-
-// Hàm truy vấn hộ khẩu theo nhiều tiêu chí
+// Truy vấn hộ khẩu theo nhiều tiêu chí
 exports.searchHouseholds = async (req, res) => {
   try {
-    const { householdCode, headOfHousehold, address, apartmentType, minMemberCount, maxMemberCount } = req.query;
+    const { apartmentCode, ownerId, status, minArea, maxArea } = req.query;
 
-    // Build điều kiện tìm kiếm
     let whereClause = {};
 
-    if (householdCode) {
-      // Mã hộ khẩu: chữ + số, không ký tự đặc biệt, tìm chính xác hoặc chứa
-      // Ở đây giả sử tìm chứa (like) để linh hoạt
-      whereClause.householdCode = { [Op.iLike]: `%${householdCode}%` };
+    if (apartmentCode) {
+      whereClause.apartmentCode = { [Op.iLike]: `%${apartmentCode}%` };
     }
 
-    if (headOfHousehold) {
-      // Tên chủ hộ: không ký tự đặc biệt, tìm chứa
-      whereClause.headOfHousehold = { [Op.iLike]: `%${headOfHousehold}%` };
+    if (ownerId) {
+      whereClause.ownerId = ownerId;
     }
 
-    if (address) {
-      whereClause.address = { [Op.iLike]: `%${address}%` };
+    if (status) {
+      whereClause.status = status;
     }
 
-    if (apartmentType) {
-      whereClause.apartmentType = apartmentType;
-    }
-
-    if (minMemberCount || maxMemberCount) {
-      whereClause.memberCount = {};
-      if (minMemberCount) whereClause.memberCount[Op.gte] = parseInt(minMemberCount);
-      if (maxMemberCount) whereClause.memberCount[Op.lte] = parseInt(maxMemberCount);
+    if (minArea || maxArea) {
+      whereClause.area = {};
+      if (minArea) whereClause.area[Op.gte] = parseFloat(minArea);
+      if (maxArea) whereClause.area[Op.lte] = parseFloat(maxArea);
     }
 
     const households = await Household.findAll({ where: whereClause });

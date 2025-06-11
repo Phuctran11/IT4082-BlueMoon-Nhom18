@@ -1,7 +1,4 @@
-const jwt = require('jsonwebtoken');
-
-// Secret key dùng để ký token (bạn nên lưu trong biến môi trường)
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_here';
+const jwtUtils = require('../utils/jwtUtils');
 
 const authMiddleware = (req, res, next) => {
   try {
@@ -12,7 +9,11 @@ const authMiddleware = (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwtUtils.verifyToken(token);
+
+    if (!decoded) {
+      return res.status(401).json({ success: false, message: 'Token không hợp lệ hoặc hết hạn' });
+    }
 
     // Gắn thông tin user decoded vào req để dùng tiếp
     req.user = decoded;

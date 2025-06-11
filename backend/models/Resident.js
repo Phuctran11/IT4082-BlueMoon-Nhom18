@@ -1,12 +1,12 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const sequelize = require('../config/db');
 const Household = require('./Household');
 
-const Resident = sequelize.define('Resident', {
+const Resident = sequelize.define('resident', {
   id: {
     type: DataTypes.INTEGER,
-    autoIncrement: true,
     primaryKey: true,
+    autoIncrement: true,
   },
   householdId: {
     type: DataTypes.INTEGER,
@@ -14,42 +14,46 @@ const Resident = sequelize.define('Resident', {
     references: {
       model: Household,
       key: 'id',
-    }
+    },
+    onDelete: 'CASCADE',
+    field: 'household_id',
   },
   fullName: {
-    type: DataTypes.STRING(100),
+    type: DataTypes.STRING(150),
     allowNull: false,
+    field: 'full_name',
   },
-  birthDate: {
+  dateOfBirth: {
     type: DataTypes.DATEONLY,
-    allowNull: false,
+    allowNull: true,
+    field: 'date_of_birth',
   },
-  gender: {
-    type: DataTypes.ENUM('Nam', 'Nữ', 'Khác'),
-    allowNull: false,
+  idCardNumber: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    field: 'id_card_number',
   },
-  cccd: {
-    type: DataTypes.STRING(12),
-    allowNull: false,
-    unique: true,
-    validate: {
-      len: [12, 12],
-      isNumeric: true,
-    }
-  },
-  relationToHead: {
-    type: DataTypes.ENUM('Chủ hộ', 'vợ', 'chồng', 'con', 'khác'),
-    allowNull: false,
-  },
-  occupation: {
+  relationshipWithOwner: {
     type: DataTypes.STRING(100),
     allowNull: true,
-  }
+    field: 'relationship_with_owner',
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    field: 'created_at',
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    field: 'updated_at',
+  },
 }, {
   tableName: 'residents',
   timestamps: true,
+  underscored: true,
 });
 
-Resident.belongsTo(Household, { foreignKey: 'householdId' });
+Resident.belongsTo(Household, { foreignKey: 'householdId', as: 'household' });
 
 module.exports = Resident;

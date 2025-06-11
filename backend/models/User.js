@@ -1,37 +1,63 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-const Role = require('./Role');
+const sequelize = require('../config/db');
 
-const User = sequelize.define('User', {
+const User = sequelize.define('user', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
   username: {
-    type: DataTypes.STRING(50),
-    unique: true,
+    type: DataTypes.STRING(100),
     allowNull: false,
+    unique: true,
   },
   password: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(255),
     allowNull: false,
   },
-  // Nếu 1 user chỉ có 1 role
-  roleId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: Role,
-      key: 'id',
+  fullName: {
+    type: DataTypes.STRING(150),
+    allowNull: false,
+    field: 'full_name',
+  },
+  email: {
+    type: DataTypes.STRING(150),
+    allowNull: true,
+    unique: true,
+    validate: {
+      isEmail: true,
     },
   },
-  
+  phoneNumber: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    field: 'phone_number',
+  },
+  avatarUrl: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    field: 'avatar_url',
+  },
+  status: {
+    type: DataTypes.STRING(20),
+    allowNull: false,
+    defaultValue: 'active',
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    field: 'created_at',
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+    field: 'updated_at',
+  },
 }, {
   tableName: 'users',
   timestamps: true,
+  underscored: true,
 });
-
-// Thiết lập quan hệ
-User.belongsTo(Role, { foreignKey: 'roleId', as: 'role' });
 
 module.exports = User;
