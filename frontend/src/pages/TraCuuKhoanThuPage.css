@@ -1,0 +1,44 @@
+.tracuu-main {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tracuu-container {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.tracuu-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.tracuu-table th,
+.tracuu-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.tracuu-table th {
+  background-color: #f5f5f5;
+  font-weight: 500;
+  color: #333;
+}
+
+.tracuu-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.tracuu-table td {
+  color: #666;
+} 

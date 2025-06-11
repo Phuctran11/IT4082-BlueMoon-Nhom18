@@ -1,0 +1,201 @@
+.crud-main {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.crud-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.crud-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #444;
+  margin: 0;
+}
+
+.table-container {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow-x: auto;
+  margin-bottom: 2rem;
+}
+
+.crud-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.crud-table th,
+.crud-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.crud-table th {
+  background: #f8f9fa;
+  font-weight: 600;
+  color: #444;
+}
+
+.crud-table tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+.crud-table tr:hover {
+  background-color: #f3f4f6;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.icon-button:hover {
+  background-color: #e9ecef;
+}
+
+.view-btn {
+  color: #0d6efd;
+}
+
+.edit-btn {
+  color: #198754;
+}
+
+.delete-btn {
+  color: #dc3545;
+}
+
+.crud-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.create-btn {
+  background: #7ca982;
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.create-btn:hover {
+  background: #6b9371;
+}
+
+/* Reuse these styles from ActionSelectionPage.css */
+.action-selection-root {
+  min-height: 100vh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.action-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.5rem 2rem 0.5rem 2rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.header-left {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1c3d72;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: 0.5rem;
+}
+
+.user-building {
+  font-size: 0.9rem;
+  color: #444;
+  margin-bottom: 0.2rem;
+}
+
+.user-details {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1rem;
+}
+
+.user-icon {
+  font-size: 1.2rem;
+}
+
+.user-name {
+  font-weight: 500;
+}
+
+.user-role {
+  font-size: 0.95rem;
+  color: #666;
+  margin-left: 0.3rem;
+}
+
+.back-btn {
+  border: 1px solid #333;
+  background: #fff;
+  color: #333;
+  border-radius: 6px;
+  padding: 0.3rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.back-btn:hover {
+  background: #f5f5f5;
+}
+
+.logout-btn {
+  border: 1px solid #333;
+  background: #fff;
+  color: #333;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.logout-btn:hover {
+  background: #f5f5f5;
+} 

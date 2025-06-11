@@ -1,0 +1,44 @@
+.thongke-main {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.thongke-container {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.thongke-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.thongke-table th,
+.thongke-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.thongke-table th {
+  background-color: #f5f5f5;
+  font-weight: 500;
+  color: #333;
+}
+
+.thongke-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.thongke-table td {
+  color: #666;
+} 

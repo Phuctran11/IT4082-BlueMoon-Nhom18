@@ -36,34 +36,31 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="auth-container">
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <h2>Tạo tài khoản BlueMoon</h2>
+    <div className="login-container">
+      <form className="login-form" onSubmit={handleSubmit}>
+        <h1 className="login-title">BlueMoon</h1>
         <div className="input-group">
-          <label htmlFor="username">Tên đăng nhập</label>
           <input
-            id="username"
             type="text"
+            placeholder="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>
         <div className="input-group">
-          <label htmlFor="fullName">Họ và tên</label>
           <input
-            id="fullName"
             type="text"
+            placeholder="full name"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
           />
         </div>
         <div className="input-group">
-          <label htmlFor="password">Mật khẩu</label>
           <input
-            id="password"
             type="password"
+            placeholder="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -71,12 +68,12 @@ const RegisterPage = () => {
         </div>
         {error && <p className="error-message">{error}</p>}
         {message && <p className="success-message">{message}</p>}
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Đang xử lý...' : 'Đăng ký'}
+        <button type="submit" className="login-btn" disabled={isLoading}>
+          {isLoading ? 'Loading...' : 'Register'}
         </button>
-        <p className="redirect-link">
-          Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
-        </p>
+        <div className="redirect-link">
+          Already have an account? <Link to="/login">Login</Link>
+        </div>
       </form>
     </div>
   );

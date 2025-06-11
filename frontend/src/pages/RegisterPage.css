@@ -1,90 +1,91 @@
-.auth-container {
+.login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f0f2f5;
-  font-family: sans-serif;
+  background: #fff;
 }
 
-.auth-form {
-  padding: 2.5rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  width: 100%;
-  max-width: 420px;
-  text-align: center;
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 2.5rem;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #fff;
+  min-width: 320px;
 }
 
-.auth-form h2 {
-  margin-bottom: 2rem;
+.login-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
   color: #1c3d72;
-  font-size: 1.8rem;
-  font-weight: 700;
+  letter-spacing: 1px;
 }
 
 .input-group {
-  margin-bottom: 1.5rem;
-  text-align: left;
-}
-
-.input-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #4f4f4f;
+  width: 100%;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
 .input-group input {
   width: 100%;
-  padding: 0.8rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-sizing: border-box;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #333;
+  border-radius: 4px;
   font-size: 1rem;
+  margin-bottom: 0;
 }
 
-.input-group input:focus {
-  outline: none;
-  border-color: #1877f2;
-  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+.login-btn {
+  width: 100%;
+  padding: 0.7rem 0;
+  margin-top: 0.5rem;
+  border: 1px solid #333;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  background: #7ca982;
+  color: #fff;
+  transition: background 0.2s;
+}
+
+.login-btn:disabled {
+  background: #b5b5b5;
+  cursor: not-allowed;
 }
 
 .error-message {
   color: #d32f2f;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
   text-align: left;
+  width: 100%;
 }
 
 .success-message {
   color: #28a745;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
   text-align: left;
-}
-
-button {
   width: 100%;
-  padding: 0.9rem;
-  border: none;
-  background-color: #1877f2;
-  color: white;
-  font-size: 1.1rem;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
 }
 
 .redirect-link {
   margin-top: 1.5rem;
   font-size: 0.9rem;
+  width: 100%;
+  text-align: right;
 }
 
 .redirect-link a {
-  color: #1877f2;
+  color: #1c3d72;
   font-weight: 600;
   text-decoration: none;
 }
