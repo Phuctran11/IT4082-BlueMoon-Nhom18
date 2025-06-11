@@ -1,63 +1,62 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Giả sử context ở src/context/AuthContext.js
-import './LoginPage.css'; // File CSS
+import './LoginPage.css';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-
-    try {
-      await login(username, password);
-      navigate('/dashboard'); // Điều hướng đến trang dashboard sau khi thành công
-    } catch (err) {
-      setError(err.response?.data?.message || 'Đăng nhập thất bại.');
-    } finally {
+    // Dummy login logic for now
+    setTimeout(() => {
       setIsLoading(false);
-    }
+      navigate('/dashboard');
+    }, 1000);
+  };
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+    navigate('/register');
   };
 
   return (
-    <div className="auth-container">
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <h2>Đăng nhập BlueMoon</h2>
+    <div className="login-container">
+      <form className="login-form" onSubmit={handleLogin}>
+        <h1 className="login-title">BlueMoon</h1>
         <div className="input-group">
-          <label htmlFor="username">Tên đăng nhập</label>
           <input
-            id="username"
             type="text"
+            placeholder="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>
         <div className="input-group">
-          <label htmlFor="password">Mật khẩu</label>
           <input
-            id="password"
             type="password"
+            placeholder="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
+        <div className="forgot-link-wrapper">
+          <Link to="/forgot-password" className="forgot-link">Forgot Password?</Link>
+        </div>
         {error && <p className="error-message">{error}</p>}
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Đang xử lý...' : 'Đăng nhập'}
+        <button type="submit" className="login-btn" disabled={isLoading}>
+          {isLoading ? 'Loading...' : 'Login'}
         </button>
-        <p className="redirect-link">
-          Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
-        </p>
+        <button className="register-btn" onClick={handleRegister}>
+          Register
+        </button>
       </form>
     </div>
   );
