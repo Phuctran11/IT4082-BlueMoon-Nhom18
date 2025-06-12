@@ -16,13 +16,8 @@ const LoginPage = () => {
     // Dummy login logic for now
     setTimeout(() => {
       setIsLoading(false);
-      navigate('/dashboard');
+      navigate('/action-selection');
     }, 1000);
-  };
-
-  const handleRegister = (e) => {
-    e.preventDefault();
-    navigate('/register');
   };
 
   return (
@@ -32,7 +27,7 @@ const LoginPage = () => {
         <div className="input-group">
           <input
             type="text"
-            placeholder="username"
+            placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -41,7 +36,7 @@ const LoginPage = () => {
         <div className="input-group">
           <input
             type="password"
-            placeholder="password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -54,7 +49,7 @@ const LoginPage = () => {
         <button type="submit" className="login-btn" disabled={isLoading}>
           {isLoading ? 'Loading...' : 'Login'}
         </button>
-        <button className="register-btn" onClick={handleRegister}>
+        <button type="button" className="register-btn" onClick={() => navigate('/register')}>
           Register
         </button>
       </form>

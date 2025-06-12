@@ -6,6 +6,7 @@ const CreateKhoanThuPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     loaiKhoanThu: 'Bắt buộc',
+    maKhoanThu: 'PE025502',
     tenKhoanThu: '',
     soTien: '',
     ngayThuTu: '23/4/25',
@@ -15,9 +16,9 @@ const CreateKhoanThuPage = () => {
 
   // Dummy data for preview table
   const previewData = [
-    { hoGiaDinh: 'A', soTien: '50,000' },
-    { hoGiaDinh: 'B', soTien: '55,000' },
-    { hoGiaDinh: 'C', soTien: '50,000' }
+    { hoGiaDinh: 'Hộ A', soTien: '50,000đ' },
+    { hoGiaDinh: 'Hộ B', soTien: '55,000đ' },
+    { hoGiaDinh: 'Hộ C', soTien: '50,000đ' }
   ];
 
   const handleInputChange = (e) => {
@@ -31,28 +32,37 @@ const CreateKhoanThuPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
-    // TODO: Add API call to save data
+    navigate('/crud-khoan-thu');
   };
 
   return (
     <div className="action-selection-root">
       <header className="action-header">
-        <div className="header-left">BlueMoon</div>
+        <div className="header-left">
+          <img src="/logo.png" alt="BlueMoon" className="logo" />
+          <span className="brand-text">BlueMoon</span>
+        </div>
         <div className="header-right">
           <div className="user-info">
             <div className="user-building">Chung cư ABC</div>
             <div className="user-details">
               <span className="user-icon">👤</span>
               <span className="user-name">Nguyen A</span>
-              <span className="user-role">Kế toán</span>
+              <span className="user-role">Admin</span>
             </div>
           </div>
-          <button className="logout-btn">⎋ Logout</button>
+          <button className="logout-btn" onClick={() => navigate('/')}>
+            <span className="logout-icon">⎋</span>
+            <span>Đăng xuất</span>
+          </button>
         </div>
       </header>
       <main className="create-form-main">
         <div className="crud-header">
-          <button className="back-btn" onClick={() => navigate(-1)}>&lt; Quay lại</button>
+          <button className="back-btn" onClick={() => navigate(-1)}>
+            <span className="back-icon">←</span>
+            <span>Quay lại</span>
+          </button>
           <h2 className="crud-title">Quản lý khoản thu / CRUD khoản thu / Tạo khoản thu</h2>
         </div>
         
@@ -70,10 +80,10 @@ const CreateKhoanThuPage = () => {
               </select>
             </div>
             <div className="form-group">
-              <label>Mã khoản thu (Được tạo tự động)</label>
+              <label>Mã khoản thu</label>
               <input 
                 type="text" 
-                value="PE025502" 
+                value={formData.maKhoanThu}
                 disabled 
                 className="disabled-input"
               />
@@ -88,6 +98,7 @@ const CreateKhoanThuPage = () => {
                 name="tenKhoanThu"
                 value={formData.tenKhoanThu}
                 onChange={handleInputChange}
+                placeholder="Nhập tên khoản thu"
               />
             </div>
           </div>
@@ -123,6 +134,7 @@ const CreateKhoanThuPage = () => {
                   name="soTien"
                   value={formData.soTien}
                   onChange={handleInputChange}
+                  placeholder="Nhập số tiền"
                 />
                 <div className="amount-actions">
                   <button type="button" className="amount-action-btn">VNĐ</button>
@@ -136,7 +148,8 @@ const CreateKhoanThuPage = () => {
             <div className="form-group full-width">
               <label>Đối tượng áp dụng</label>
               <button type="button" className="select-target-btn">
-                ⚡ Truy vấn hộ khẩu
+                <span className="lightning-icon">⚡</span>
+                <span>Truy vấn hộ khẩu</span>
               </button>
             </div>
           </div>

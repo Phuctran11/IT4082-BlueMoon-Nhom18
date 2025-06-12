@@ -1,0 +1,131 @@
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+}
+
+.layout-container {
+  flex: 1;
+  display: flex;
+  position: relative;
+}
+
+.sidebar {
+  width: 280px;
+  background: white;
+  border-right: 1px solid #eee;
+  height: calc(100vh - 64px);
+  position: sticky;
+  top: 64px;
+  transition: all 0.3s ease;
+  transform: translateX(-280px);
+  z-index: 90;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-toggle {
+  position: absolute;
+  right: -40px;
+  top: 1rem;
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: 1px solid #eee;
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+  color: #2c3e50;
+  background-color: #f8f9fa;
+}
+
+.sidebar-nav {
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  color: #666;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  background-color: #f8f9fa;
+  color: #2c3e50;
+}
+
+.nav-item.active {
+  background-color: #7ca982;
+  color: white;
+}
+
+.nav-item.active svg {
+  color: white;
+}
+
+.nav-item svg {
+  color: #666;
+  transition: color 0.2s ease;
+}
+
+.nav-label {
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+  padding: 0 2rem 2rem;
+  margin-left: 0;
+  transition: margin-left 0.3s ease;
+}
+
+.sidebar.open + .main-content {
+  margin-left: 280px;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .sidebar {
+    position: fixed;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar.open + .main-content {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 0 1rem 1rem;
+  }
+
+  .nav-label {
+    font-size: 0.875rem;
+  }
+} 

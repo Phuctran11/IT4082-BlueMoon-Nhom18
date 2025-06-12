@@ -1,44 +1,69 @@
 .thongke-main {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  flex: 1;
+  padding: 2rem;
+  background: #fff;
 }
 
 .thongke-container {
-  background: white;
-  padding: 30px;
+  background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-top: 20px;
-}
-
-.table-container {
-  overflow-x: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow: auto;
+  margin-top: 2rem;
 }
 
 .thongke-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
-}
-
-.thongke-table th,
-.thongke-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
 }
 
 .thongke-table th {
-  background-color: #f5f5f5;
+  background: #f5f5f5;
+  padding: 1rem;
+  text-align: left;
   font-weight: 500;
   color: #333;
-}
-
-.thongke-table tr:hover {
-  background-color: #f9f9f9;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
 }
 
 .thongke-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
   color: #666;
+  font-size: 14px;
+}
+
+.thongke-table tr:last-child td {
+  border-bottom: none;
+}
+
+.thongke-table tr:hover {
+  background: #f9f9f9;
+}
+
+.thongke-filter {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.thongke-filter label {
+  font-size: 14px;
+  color: #666;
+}
+
+.thongke-filter select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  background: #fff;
+}
+
+.thongke-filter select:focus {
+  outline: none;
+  border-color: #7ca982;
 } 

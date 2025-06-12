@@ -1,111 +1,128 @@
 .crud-main {
   flex: 1;
   padding: 2rem;
-  display: flex;
-  flex-direction: column;
+  background: #fff;
 }
 
 .crud-header {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
   margin-bottom: 2rem;
 }
 
+.back-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: none;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.back-btn:hover {
+  color: #333;
+}
+
 .crud-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #444;
-  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
 }
 
 .table-container {
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  overflow-x: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  overflow: auto;
   margin-bottom: 2rem;
 }
 
 .crud-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 800px;
-}
-
-.crud-table th,
-.crud-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid #eee;
 }
 
 .crud-table th {
-  background: #f8f9fa;
-  font-weight: 600;
-  color: #444;
+  background: #f5f5f5;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
 }
 
-.crud-table tr:nth-child(even) {
-  background-color: #f8f9fa;
+.crud-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  color: #666;
+  font-size: 14px;
+}
+
+.crud-table tr:last-child td {
+  border-bottom: none;
 }
 
 .crud-table tr:hover {
-  background-color: #f3f4f6;
+  background: #f9f9f9;
 }
 
 .action-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
   justify-content: flex-start;
 }
 
 .icon-button {
   background: none;
   border: none;
-  font-size: 1.2rem;
   cursor: pointer;
-  padding: 0.2rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
+  padding: 0.25rem;
+  font-size: 16px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
 }
 
 .icon-button:hover {
-  background-color: #e9ecef;
+  opacity: 1;
 }
 
-.view-btn {
-  color: #0d6efd;
+.view-btn:hover {
+  color: #4e7a74;
 }
 
-.edit-btn {
-  color: #198754;
+.edit-btn:hover {
+  color: #7ca982;
 }
 
-.delete-btn {
+.delete-btn:hover {
   color: #dc3545;
 }
 
 .crud-footer {
   display: flex;
   justify-content: center;
-  margin-top: 1rem;
+  padding: 1rem 0;
 }
 
 .create-btn {
+  padding: 0.8rem 2rem;
   background: #7ca982;
   color: white;
   border: none;
-  padding: 0.8rem 2rem;
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: 4px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 .create-btn:hover {
-  background: #6b9371;
+  background: #6b9871;
 }
 
 /* Reuse these styles from ActionSelectionPage.css */
@@ -168,21 +185,6 @@
   font-size: 0.95rem;
   color: #666;
   margin-left: 0.3rem;
-}
-
-.back-btn {
-  border: 1px solid #333;
-  background: #fff;
-  color: #333;
-  border-radius: 6px;
-  padding: 0.3rem 1rem;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.back-btn:hover {
-  background: #f5f5f5;
 }
 
 .logout-btn {

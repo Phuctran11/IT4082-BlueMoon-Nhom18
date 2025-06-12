@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CRUDKhoanThuPage.css';
 
 const CRUDKhoanThuPage = () => {
   const navigate = useNavigate();
-  // Dummy data - replace with actual API call
-  const [khoanThuList, setKhoanThuList] = useState([
+  const [khoanThuList] = useState([
     {
       id: 1,
       tenKhoanThu: 'Dịch vụ trông xe',
@@ -44,45 +43,49 @@ const CRUDKhoanThuPage = () => {
   ]);
 
   const handleView = (id) => {
-    // Handle view action
-    console.log('View item:', id);
+    navigate(`/view-khoan-thu/${id}`);
   };
 
   const handleEdit = (id) => {
-    // Handle edit action
-    console.log('Edit item:', id);
+    navigate(`/edit-khoan-thu/${id}`);
   };
 
   const handleDelete = (id) => {
-    // Handle delete action
+    // Add confirmation dialog here
     console.log('Delete item:', id);
-  };
-
-  const handleCreateNew = () => {
-    navigate('/create-khoan-thu');
   };
 
   return (
     <div className="action-selection-root">
       <header className="action-header">
-        <div className="header-left">BlueMoon</div>
+        <div className="header-left">
+          <img src="/logo.png" alt="BlueMoon" className="logo" />
+          <span className="brand-text">BlueMoon</span>
+        </div>
         <div className="header-right">
           <div className="user-info">
             <div className="user-building">Chung cư ABC</div>
             <div className="user-details">
               <span className="user-icon">👤</span>
               <span className="user-name">Nguyen A</span>
-              <span className="user-role">Kế toán</span>
+              <span className="user-role">Admin</span>
             </div>
           </div>
-          <button className="logout-btn">⎋ Logout</button>
+          <button className="logout-btn" onClick={() => navigate('/')}>
+            <span className="logout-icon">⎋</span>
+            <span>Đăng xuất</span>
+          </button>
         </div>
       </header>
       <main className="crud-main">
         <div className="crud-header">
-          <button className="back-btn" onClick={() => navigate(-1)}>&lt; Quay lại</button>
+          <button className="back-btn" onClick={() => navigate(-1)}>
+            <span className="back-icon">←</span>
+            <span>Quay lại</span>
+          </button>
           <h2 className="crud-title">Quản lý khoản thu / CRUD khoản thu</h2>
         </div>
+        
         <div className="table-container">
           <table className="crud-table">
             <thead>
@@ -120,7 +123,7 @@ const CRUDKhoanThuPage = () => {
           </table>
         </div>
         <div className="crud-footer">
-          <button className="create-btn" onClick={handleCreateNew}>
+          <button className="create-btn" onClick={() => navigate('/create-khoan-thu')}>
             Tạo khoản thu
           </button>
         </div>
