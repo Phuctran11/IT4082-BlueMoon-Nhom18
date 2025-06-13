@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     name: { type: DataTypes.STRING, allowNull: false },
     startDate: { type: DataTypes.DATE, field: 'start_date' },
     endDate: { type: DataTypes.DATE, field: 'end_date' },
+    status: { type: DataTypes.ENUM('Chưa bắt đầu', 'Đang thu', 'Đã kết thúc'), defaultValue: 'Chưa bắt đầu' }
   }, {
     sequelize,
     modelName: 'FeePeriod',

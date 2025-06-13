@@ -12,6 +12,10 @@ module.exports = (sequelize, DataTypes) => {
     fullName: { type: DataTypes.STRING, field: 'full_name', allowNull: false },
     dateOfBirth: { type: DataTypes.DATE, field: 'date_of_birth' },
     //... thêm các trường khác nếu cần
+    gender: { type: DataTypes.ENUM('Nam', 'Nữ', 'Khác') },
+    idCardNumber: { type: DataTypes.STRING, field: 'id_card_number', unique: true },
+    relationship: { type: DataTypes.STRING }, // Quan hệ với chủ hộ
+    occupation: { type: DataTypes.STRING } // Nghề nghiệp
   }, {
     sequelize,
     modelName: 'Resident',

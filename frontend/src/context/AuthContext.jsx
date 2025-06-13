@@ -65,6 +65,12 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
+  const updateAuthUser = (newUserData) => {
+    // Cập nhật cả state và localStorage
+    setUser(newUserData);
+    localStorage.setItem('user', JSON.stringify(newUserData));
+    console.log("AuthContext user updated:", newUserData);
+  };
   // 3. Cung cấp state và các hàm cho các component con
   const value = {
     user,
@@ -73,6 +79,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
+    updateAuthUser, // Thêm hàm mới vào value để cung cấp cho các component
   };
 
   return (

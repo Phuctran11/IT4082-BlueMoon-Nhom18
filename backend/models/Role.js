@@ -6,8 +6,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.belongsToMany(models.User, {
         through: models.UserRole,
-        foreignKey: 'roleId',
-        otherKey: 'userId',
+        foreignKey: 'role_id', // Dùng tên cột trong DB
+        otherKey: 'user_id',
       });
     }
   }
