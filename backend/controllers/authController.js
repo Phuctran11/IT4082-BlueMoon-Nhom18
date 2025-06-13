@@ -57,6 +57,14 @@ exports.login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không đúng.' });
     }
 
+    // Kiểm tra trạng thái người dùng
+    if (user.status === 'locked') {
+        return res.status(403).json({ success: false, message: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.' });
+    }
+    if (user.status === 'deleted') {
+        return res.status(404).json({ success: false, message: 'Tài khoản không tồn tại.' });
+    }
+    
     const isMatch = await comparePassword(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không đúng.' });

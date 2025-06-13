@@ -1,14 +1,23 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './Sidebar.css'; // Chúng ta sẽ tạo file CSS này ngay sau đây
+import './Sidebar.css';
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const isAccountant = user?.roles?.includes('Kế toán');
-  const isManager = user?.roles?.includes('Tổ trưởng') || user?.roles?.includes('Tổ phó');
+  // --- SỬA ĐỔI LOGIC KIỂM TRA QUYỀN HẠN TẠI ĐÂY ---
+
+  // Biến isAdmin để tiện tái sử dụng
+  const isAdmin = user?.roles?.includes('Admin');
+
+  // Người dùng có thể quản lý tài chính nếu họ là 'Kế toán' HOẶC là 'Admin'
+  const canManageFinance = user?.roles?.includes('Kế toán') || isAdmin;
+
+  // Người dùng có thể quản lý cộng đồng nếu họ là 'Tổ trưởng', 'Tổ phó' HOẶC là 'Admin'
+  const canManageCommunity = user?.roles?.includes('Tổ trưởng') || user?.roles?.includes('Tổ phó') || isAdmin;
+
 
   const handleLogout = () => {
     logout();
@@ -28,19 +37,28 @@ const Sidebar = () => {
             </NavLink>
           </li>
           
-          {isAccountant && (
+          {/* SỬ DỤNG BIẾN KIỂM TRA MỚI */}
+          {canManageFinance && (
             <>
               <li><NavLink to="/fee-types"><span>Quản lý Loại phí</span></NavLink></li>
               <li><NavLink to="/fee-periods"><span>Quản lý Đợt thu</span></NavLink></li>
             </>
           )}
           
-          {isManager && (
-            <li>
-              <NavLink to="/households">
-                <span>Quản lý dân cư</span>
-              </NavLink>
-            </li>
+          {canManageCommunity && (
+            <>
+              <li>
+                <NavLink to="/households">
+                  {/* Đổi tên cho nhất quán với các menu khác */}
+                  <span>Quản lý Hộ khẩu</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/users">
+                  <span>Quản lý Tài khoản</span>
+                </NavLink>
+              </li>
+            </> 
           )}
         </ul>
       </nav>
@@ -53,5 +71,4 @@ const Sidebar = () => {
   );
 };
 
-// DÒNG QUAN TRỌNG NHẤT LÀ ĐÂY:
 export default Sidebar;

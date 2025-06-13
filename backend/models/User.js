@@ -10,10 +10,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id', // Dùng tên cột trong DB
         otherKey: 'role_id',
       });
-      this.hasMany(models.Household, {
-        foreignKey: 'owner_id',
-        as: 'OwnedHouseholds'
-      });
     }
   }
   User.init({

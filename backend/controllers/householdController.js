@@ -1,15 +1,11 @@
-const { Household, User } = require('../models');
+const { Household } = require('../models');
 
-// GET all households, include owner's name
+// GET all households
 exports.getAllHouseholds = async (req, res) => {
   try {
+    // BỎ PHẦN "include" VÌ KHÔNG CÒN QUAN HỆ VỚI USER
     const households = await Household.findAll({
       order: [['apartmentCode', 'ASC']],
-      include: {
-        model: User,
-        as: 'Owner', // Dùng alias đã định nghĩa trong model
-        attributes: ['id', 'fullName'] // Chỉ lấy những thông tin cần thiết của chủ hộ
-      }
     });
     res.status(200).json({ success: true, data: households });
   } catch (error) {
@@ -20,13 +16,17 @@ exports.getAllHouseholds = async (req, res) => {
 // CREATE a new household
 exports.createHousehold = async (req, res) => {
   try {
-    const { apartmentCode, ownerId, area, status, address, apartmentType  } = req.body;
-    if (!apartmentCode) {
-      return res.status(400).json({ success: false, message: 'Mã căn hộ là bắt buộc.' });
+    // Sử dụng các trường mới theo đặc tả
+    const { apartmentCode, ownerName, address, memberCount, apartmentType, area, status } = req.body;
+    if (!apartmentCode || !ownerName || !address || !memberCount || !apartmentType) {
+      return res.status(400).json({ success: false, message: 'Vui lòng điền đầy đủ các trường bắt buộc.' });
     }
-    const newHousehold = await Household.create({ apartmentCode, ownerId, area, status, address, apartmentType });
+    const newHousehold = await Household.create({ apartmentCode, ownerName, address, memberCount, apartmentType, area, status });
     res.status(201).json({ success: true, message: 'Tạo hộ khẩu thành công!', data: newHousehold });
   } catch (error) {
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).json({ success: false, message: 'Mã hộ khẩu đã tồn tại.' });
+    }
     res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };
