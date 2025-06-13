@@ -1,7 +1,7 @@
-const Role = require('../models/Role');
+const { Role } = require('../models/Role');
 const apiResponse = require('../utils/apiResponse');
 
-// Lấy danh sách tất cả vai trò
+// Lấy danh sách vai trò
 exports.getAllRoles = async (req, res) => {
   try {
     const roles = await Role.findAll();
@@ -20,7 +20,6 @@ exports.createRole = async (req, res) => {
       return apiResponse.error(res, 'Tên vai trò là bắt buộc.');
     }
 
-    // Kiểm tra trùng tên vai trò
     const existing = await Role.findOne({ where: { name } });
     if (existing) {
       return apiResponse.error(res, 'Tên vai trò đã tồn tại.', 400);
@@ -46,7 +45,6 @@ exports.updateRole = async (req, res) => {
     }
 
     if (name && name !== role.name) {
-      // Kiểm tra tên mới có trùng không
       const exists = await Role.findOne({ where: { name } });
       if (exists) {
         return apiResponse.error(res, 'Tên vai trò đã tồn tại.', 400);

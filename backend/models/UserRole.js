@@ -1,37 +1,24 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
-const User = require('./User');
-const Role = require('./Role');
+'use strict';
+const { Model } = require('sequelize');
 
-const UserRole = sequelize.define('user_role', {
-  userId: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    references: {
-      model: User,
-      key: 'id',
+module.exports = (sequelize, DataTypes) => {
+  class UserRole extends Model {}
+  UserRole.init({
+    userId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      field: 'user_id',
     },
-    onDelete: 'CASCADE',
-    field: 'user_id',
-  },
-  roleId: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    references: {
-      model: Role,
-      key: 'id',
+    roleId: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      field: 'role_id',
     },
-    onDelete: 'CASCADE',
-    field: 'role_id',
-  },
-}, {
-  tableName: 'user_roles',
-  timestamps: false,
-  underscored: true,
-});
-
-// Thiết lập quan hệ nhiều-nhiều
-User.belongsToMany(Role, { through: UserRole, foreignKey: 'user_id', otherKey: 'role_id', as: 'roles' });
-Role.belongsToMany(User, { through: UserRole, foreignKey: 'role_id', otherKey: 'user_id', as: 'users' });
-
-module.exports = UserRole;
+  }, {
+    sequelize,
+    modelName: 'UserRole',
+    tableName: 'user_roles',
+    timestamps: false,
+  });
+  return UserRole;
+};

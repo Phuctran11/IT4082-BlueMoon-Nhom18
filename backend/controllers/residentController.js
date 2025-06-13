@@ -1,6 +1,6 @@
 const { Op } = require('sequelize');
-const Resident = require('../models/Resident');
-const Household = require('../models/Household');
+const { Resident } = require('../models/Resident');
+const { Household } = require('../models/Household');
 const apiResponse = require('../utils/apiResponse');
 
 // Lấy danh sách nhân khẩu theo hộ khẩu
@@ -19,10 +19,12 @@ exports.createResident = async (req, res) => {
   try {
     const data = req.body;
 
-    // Kiểm tra cccd trùng
-    const exists = await Resident.findOne({ where: { cccd: data.cccd } });
-    if (exists) {
-      return apiResponse.error(res, 'Số CCCD đã tồn tại trong hệ thống', 400);
+    // Kiểm tra idCardNumber trùng nếu có
+    if (data.idCardNumber) {
+      const exists = await Resident.findOne({ where: { idCardNumber: data.idCardNumber } });
+      if (exists) {
+        return apiResponse.error(res, 'Số CCCD đã tồn tại trong hệ thống', 400);
+      }
     }
 
     const resident = await Resident.create(data);
@@ -43,9 +45,8 @@ exports.updateResident = async (req, res) => {
       return apiResponse.error(res, 'Không tìm thấy nhân khẩu', 404);
     }
 
-    // Nếu cập nhật CCCD, kiểm tra trùng
-    if (data.cccd && data.cccd !== resident.cccd) {
-      const exists = await Resident.findOne({ where: { cccd: data.cccd } });
+    if (data.idCardNumber && data.idCardNumber !== resident.idCardNumber) {
+      const exists = await Resident.findOne({ where: { idCardNumber: data.idCardNumber } });
       if (exists) {
         return apiResponse.error(res, 'Số CCCD đã tồn tại trong hệ thống', 400);
       }
@@ -75,8 +76,6 @@ exports.deleteResident = async (req, res) => {
   }
 };
 
-
-
 // Hàm tính tuổi
 function calculateAge(birthDate) {
   const today = new Date();
@@ -97,12 +96,11 @@ function getAgeGroup(age) {
   return '>60';
 }
 
-// Hàm thống kê nhân khẩu (thêm mới)
+// Thống kê nhân khẩu (theo block, floor, gender, ageGroup)
 exports.statisticsResidents = async (req, res) => {
   try {
     const { block, floor, gender, ageGroup } = req.query;
 
-    // Điều kiện lọc hộ khẩu
     const householdWhere = {};
     if (block) householdWhere.block = block;
     if (floor) householdWhere.floor = floor;
@@ -119,12 +117,11 @@ exports.statisticsResidents = async (req, res) => {
 
     const householdIds = households.map(h => h.id);
 
-    // Lấy nhân khẩu theo hộ khẩu
     let residents = await Resident.findAll({
       where: {
         householdId: { [Op.in]: householdIds },
       },
-      attributes: ['birthDate', 'gender'],
+      attributes: ['dateOfBirth', 'gender', 'fullName'],
       raw: true,
     });
 
@@ -132,14 +129,12 @@ exports.statisticsResidents = async (req, res) => {
       return apiResponse.success(res, [], 'Không có kết quả phù hợp');
     }
 
-    // Lọc theo giới tính nếu có
     if (gender) {
       residents = residents.filter(r => r.gender === gender);
     }
 
-    // Tính tuổi và nhóm tuổi
     residents = residents.map(r => {
-      const age = calculateAge(r.birthDate);
+      const age = calculateAge(r.dateOfBirth);
       return {
         ...r,
         age,
@@ -147,7 +142,6 @@ exports.statisticsResidents = async (req, res) => {
       };
     });
 
-    // Lọc theo nhóm tuổi nếu có
     if (ageGroup) {
       residents = residents.filter(r => r.ageGroup === ageGroup);
     }
@@ -156,16 +150,13 @@ exports.statisticsResidents = async (req, res) => {
       return apiResponse.success(res, [], 'Không có kết quả phù hợp');
     }
 
-    // Thống kê tổng số nhân khẩu
     const totalResidents = residents.length;
 
-    // Thống kê theo nhóm tuổi
     const countByAgeGroup = residents.reduce((acc, r) => {
       acc[r.ageGroup] = (acc[r.ageGroup] || 0) + 1;
       return acc;
     }, {});
 
-    // Thống kê theo giới tính
     const countByGender = residents.reduce((acc, r) => {
       acc[r.gender] = (acc[r.gender] || 0) + 1;
       return acc;
@@ -179,83 +170,67 @@ exports.statisticsResidents = async (req, res) => {
     };
 
     return apiResponse.success(res, result);
-
   } catch (error) {
     return apiResponse.error(res, 'Lỗi khi thống kê nhân khẩu: ' + error.message);
   }
 };
 
-
 /**
- * Truy vấn thông tin nhân khẩu theo tiêu chí:
- * - fullName (họ tên, có thể tìm kiếm gần đúng)
- * - householdCode (mã hộ khẩu)
- * - cccd (số căn cước công dân)
- * - relation (quan hệ với chủ hộ)
+ * Truy vấn nhân khẩu theo tiêu chí: fullName, householdCode, idCardNumber, relation
  */
 exports.queryResidents = async (req, res) => {
   try {
-    const { fullName, householdCode, cccd, relation } = req.query;
+    const { fullName, householdCode, idCardNumber, relation } = req.query;
 
-    // Kiểm tra ít nhất một tiêu chí được nhập
-    if (!fullName && !householdCode && !cccd && !relation) {
+    if (!fullName && !householdCode && !idCardNumber && !relation) {
       return apiResponse.error(res, 'Vui lòng nhập ít nhất một tiêu chí tìm kiếm.');
     }
 
-    // Điều kiện truy vấn nhân khẩu
     const residentWhere = {};
 
     if (fullName) {
-      // Tìm gần đúng họ tên (case-insensitive)
       residentWhere.fullName = { [Op.iLike]: `%${fullName}%` };
     }
 
-    if (cccd) {
-      // CCCD phải đúng 12 chữ số, duy nhất
-      if (!/^\d{12}$/.test(cccd)) {
+    if (idCardNumber) {
+      if (!/^\d{12}$/.test(idCardNumber)) {
         return apiResponse.error(res, 'Số CCCD phải gồm 12 chữ số.');
       }
-      residentWhere.cccd = cccd;
+      residentWhere.idCardNumber = idCardNumber;
     }
 
     if (relation) {
-      // Quan hệ với chủ hộ, ví dụ: Chủ hộ, Vợ, Con, Khác
-      residentWhere.relation = relation;
+      residentWhere.relationshipWithOwner = relation;
     }
 
-    // Nếu có mã hộ khẩu, cần join với bảng Household để lấy id
     let householdIds = null;
     if (householdCode) {
       const households = await Household.findAll({
-        where: { code: householdCode },
+        where: { apartmentCode: householdCode },
         attributes: ['id'],
         raw: true,
       });
-      if (households.length === 0) {
-        // Không có hộ khẩu phù hợp
+      if (!households.length) {
         return apiResponse.success(res, [], 'Không có kết quả phù hợp.');
       }
       householdIds = households.map(h => h.id);
       residentWhere.householdId = { [Op.in]: householdIds };
     }
 
-    // Truy vấn nhân khẩu với điều kiện
     const residents = await Resident.findAll({
       where: residentWhere,
       include: [{
         model: Household,
-        attributes: ['code', 'address'],
+        attributes: ['apartmentCode'],
       }],
       order: [['fullName', 'ASC']],
     });
 
-    if (residents.length === 0) {
+    if (!residents.length) {
       return apiResponse.success(res, [], 'Không có kết quả phù hợp.');
     }
 
-    // Trả về danh sách kết quả
     return apiResponse.success(res, residents);
-
   } catch (error) {
     return apiResponse.error(res, 'Lỗi khi truy vấn nhân khẩu: ' + error.message);
   }

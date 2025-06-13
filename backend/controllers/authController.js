@@ -1,59 +1,65 @@
-const bcrypt = require('bcrypt');
 const User = require('../models/User');
-const Role = require('../models/Role');
-const UserRole = require('../models/UserRole');
-const jwtUtils = require('../utils/jwtUtils');
-const apiResponse = require('../utils/apiResponse');
+const { comparePassword } = require('../utils/passwordUtils');
+const { generateToken } = require('../utils/jwtUtils');
 
-/**
- * Đăng nhập user, trả về token JWT kèm roles
- * Body params:
- * - username
- * - password
- */
+exports.register = async (req, res) => {
+  try {
+    const { username, password, fullName } = req.body;
+
+    if (!username || !password || !fullName) {
+      return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin.' });
+    }
+
+    const existingUser = await User.findOne({ where: { username } });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại.' });
+    }
+
+    // Mật khẩu sẽ được hash tự động bởi hook trong model
+    const newUser = await User.create({ username, password, fullName });
+
+    res.status(201).json({
+      success: true,
+      message: 'Đăng ký tài khoản thành công!',
+      data: { id: newUser.id, username: newUser.username },
+    });   
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+  }
+};
+
 exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-      return apiResponse.error(res, 'Vui lòng nhập tên tài khoản và mật khẩu');
-    }
-
-    // Tìm user theo username
-    const user = await User.findOne({
-      where: { username },
-      include: [{
-        model: Role,
-        as: 'roles',
-        through: { attributes: [] },
-      }],
-    });
-
+    const user = await User.findOne({ where: { username } });
     if (!user) {
-      return apiResponse.error(res, 'Tài khoản hoặc mật khẩu không đúng', 401);
+      return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không đúng.' });
     }
 
-    // Kiểm tra mật khẩu
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return apiResponse.error(res, 'Tài khoản hoặc mật khẩu không đúng', 401);
+    // Sử dụng comparePassword từ utils
+    const isMatch = await comparePassword(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không đúng.' });
     }
 
-    // Lấy danh sách role name
-    const roles = user.roles.map(r => r.name);
+    const payload = { id: user.id, username: user.username };
+    // Sử dụng generateToken từ utils
+    const token = generateToken(payload);
 
-    // Tạo payload cho token
-    const payload = {
-      id: user.id,
-      username: user.username,
-      roles,
-    };
-
-    // Tạo token JWT (thời gian hết hạn 1 ngày)
-    const token = jwtUtils.generateToken(payload, '1d');
-
-    return apiResponse.success(res, { token, user: { id: user.id, username: user.username, roles } }, 'Đăng nhập thành công');
+    res.status(200).json({
+      success: true,
+      message: 'Đăng nhập thành công!',
+      data: {
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          fullName: user.fullName,
+        },
+      },
+    });
   } catch (error) {
-    return apiResponse.error(res, 'Lỗi khi đăng nhập: ' + error.message);
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };

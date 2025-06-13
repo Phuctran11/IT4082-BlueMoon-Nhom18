@@ -1,16 +1,34 @@
-const express = require('express');
-const router = express.Router();
+const apiResponse = {
+  success: (res, data = null, message = 'Success', statusCode = 200) => {
+    return res.status(statusCode).json({
+      success: true,
+      message,
+      data
+    });
+  },
 
-const householdRoutes = require('./householdRoutes');
-const residentRoutes = require('./residentRoutes');
-const authRoutes = require('./authRoutes');
-const roleRoutes = require('./roleRoutes');
-const userRoutes = require('./userRoutes');
+  error: (res, message = 'Error', statusCode = 400, errors = null) => {
+    return res.status(statusCode).json({
+      success: false,
+      message,
+      errors
+    });
+  },
 
-router.use('/auth', authRoutes);       // Thêm route đăng nhập
-router.use('/households', householdRoutes);
-router.use('/residents', residentRoutes);
-router.use('/roles', roleRoutes);
-router.use('/users', userRoutes);
+  unauthorized: (res, message = 'Unauthorized') => {
+    return res.status(401).json({
+      success: false,
+      message
+    });
+  },
 
-module.exports = router;
+  serverError: (res, message = 'Internal server error', error = null) => {
+    return res.status(500).json({
+      success: false,
+      message,
+      error: process.env.NODE_ENV === 'development' ? error?.message : undefined
+    });
+  }
+};
+
+module.exports = apiResponse;

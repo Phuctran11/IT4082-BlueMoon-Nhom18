@@ -1,52 +1,46 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
-const User = require('./User');
+'use strict';
+const { Model } = require('sequelize');
 
-const Household = sequelize.define('household', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  apartmentCode: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
-    unique: true,
-  },
-  ownerId: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'id',
+module.exports = (sequelize, DataTypes) => {
+  class Household extends Model {
+    static associate(models) {
+      this.belongsTo(models.User, { foreignKey: 'ownerId', as: 'owner' });
+      this.hasMany(models.Resident, { foreignKey: 'householdId' });
+      this.hasMany(models.Invoice, { foreignKey: 'householdId' });
+    }
+  }
+  Household.init({
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
-    onDelete: 'SET NULL',
-  },
-  area: {
-    type: DataTypes.NUMERIC(10, 2),
-    allowNull: true,
-  },
-  status: {
-    type: DataTypes.STRING(50),
-    allowNull: false,
-    defaultValue: 'occupied',
-  },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-    field: 'created_at',
-  },
-  updatedAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-    field: 'updated_at',
-  },
-}, {
-  tableName: 'households',
-  timestamps: true,
-  underscored: true,
-});
-
-Household.belongsTo(User, { foreignKey: 'ownerId', as: 'owner' });
-
-module.exports = Household;
+    apartmentCode: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      unique: true,
+      field: 'apartment_code',
+    },
+    ownerId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: 'owner_id',
+    },
+    area: {
+      type: DataTypes.NUMERIC(10, 2),
+      allowNull: true,
+    },
+    status: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      defaultValue: 'occupied',
+    },
+  }, {
+    sequelize,
+    modelName: 'Household',
+    tableName: 'households',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  });
+  return Household;
+};

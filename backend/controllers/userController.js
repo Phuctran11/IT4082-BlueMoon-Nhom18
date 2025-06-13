@@ -1,14 +1,9 @@
 const User = require('../models/User');
-const Role = require('../models/Role');
-const UserRole = require('../models/UserRole');
+const {Role} = require('../models/Role');
+const UserRole = require('../models/userRole');
 const apiResponse = require('../utils/apiResponse');
 
-/**
- * Phân quyền tài khoản người dùng
- * Body params:
- * - username (bắt buộc, không chứa ký tự đặc biệt)
- * - role (vai trò mới, bắt buộc, trong danh sách có trong bảng roles)
- */
+// Phân quyền tài khoản user
 exports.assignRole = async (req, res) => {
   try {
     const { username, role } = req.body;
@@ -21,13 +16,11 @@ exports.assignRole = async (req, res) => {
       return apiResponse.error(res, 'Tên tài khoản không hợp lệ (không chứa ký tự đặc biệt).');
     }
 
-    // Tìm user
     const user = await User.findOne({ where: { username } });
     if (!user) {
       return apiResponse.error(res, 'Tài khoản không tồn tại.');
     }
 
-    // Tìm role
     const roleRecord = await Role.findOne({ where: { name: role } });
     if (!roleRecord) {
       return apiResponse.error(res, 'Vai trò không tồn tại.');
@@ -40,7 +33,6 @@ exports.assignRole = async (req, res) => {
     await UserRole.create({ userId: user.id, roleId: roleRecord.id });
 
     return apiResponse.success(res, { role }, 'Phân quyền thành công.');
-
   } catch (error) {
     return apiResponse.error(res, 'Lỗi khi phân quyền tài khoản: ' + error.message);
   }
@@ -66,3 +58,5 @@ exports.getUserRoles = async (req, res) => {
     return apiResponse.error(res, error.message);
   }
 };
+
+// Các hàm khác như getAllUsers, createUser, updateUser, deleteUser có thể bổ sung tương tự

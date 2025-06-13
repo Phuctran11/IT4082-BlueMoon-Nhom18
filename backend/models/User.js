@@ -1,63 +1,39 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+const sequelize = require('../config/db'); 
+const { hashPassword } = require('../utils/passwordUtils');
 
-const User = sequelize.define('user', {
+const User = sequelize.define('User', {
   id: {
     type: DataTypes.INTEGER,
-    primaryKey: true,
     autoIncrement: true,
+    primaryKey: true,
   },
   username: {
-    type: DataTypes.STRING(100),
+    type: DataTypes.STRING,
     allowNull: false,
     unique: true,
   },
   password: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.STRING,
     allowNull: false,
+    field: 'password' 
   },
   fullName: {
-    type: DataTypes.STRING(150),
-    allowNull: false,
+    type: DataTypes.STRING,
     field: 'full_name',
-  },
-  email: {
-    type: DataTypes.STRING(150),
-    allowNull: true,
-    unique: true,
-    validate: {
-      isEmail: true,
-    },
-  },
-  phoneNumber: {
-    type: DataTypes.STRING(20),
-    allowNull: true,
-    field: 'phone_number',
-  },
-  avatarUrl: {
-    type: DataTypes.TEXT,
-    allowNull: true,
-    field: 'avatar_url',
-  },
-  status: {
-    type: DataTypes.STRING(20),
     allowNull: false,
-    defaultValue: 'active',
   },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-    field: 'created_at',
-  },
-  updatedAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-    field: 'updated_at',
-  },
+  // Thêm các trường khác từ file SQL của bạn...
 }, {
   tableName: 'users',
-  timestamps: true,
-  underscored: true,
+  timestamps: false,
+  hooks: {
+    beforeCreate: async (user) => {
+      if (user.password) {
+        user.password = await hashPassword(user.password);
+      }
+    },
+  },
 });
 
 module.exports = User;

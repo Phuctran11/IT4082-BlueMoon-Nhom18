@@ -7,7 +7,7 @@ const roleMiddleware = require('../middleware/roleMiddleware');
 router.put(
   '/assign-role',
   authMiddleware,
-  roleMiddleware(['Tổ trưởng', 'Tổ phó']),
+  roleMiddleware(['Tổ trưởng', 'Tổ phó', 'Admin']),
   userController.assignRole
 );
 

@@ -9,28 +9,28 @@ const roleMiddleware = require('../middleware/roleMiddleware');
 router.get(
   '/',
   authMiddleware,
-  roleMiddleware(['Tổ trưởng', 'Tổ phó']),
+  roleMiddleware(['Tổ trưởng', 'Tổ phó', 'Admin']),
   roleController.getAllRoles
 );
 
 router.post(
   '/',
   authMiddleware,
-  roleMiddleware(['Tổ trưởng', 'Tổ phó']),
+  roleMiddleware(['Tổ trưởng', 'Tổ phó', 'Admin']),
   roleController.createRole
 );
 
 router.put(
   '/:id',
   authMiddleware,
-  roleMiddleware(['Tổ trưởng', 'Tổ phó']),
+  roleMiddleware(['Tổ trưởng', 'Tổ phó', 'Admin']),
   roleController.updateRole
 );
 
 router.delete(
   '/:id',
   authMiddleware,
-  roleMiddleware(['Tổ trưởng', 'Tổ phó']),
+  roleMiddleware(['Tổ trưởng', 'Tổ phó', 'Admin']),
   roleController.deleteRole
 );
 

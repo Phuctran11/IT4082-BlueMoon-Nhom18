@@ -1,59 +1,49 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
-const Household = require('./Household');
+'use strict';
+const { Model } = require('sequelize');
 
-const Resident = sequelize.define('resident', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  householdId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Household,
-      key: 'id',
+module.exports = (sequelize, DataTypes) => {
+  class Resident extends Model {
+    static associate(models) {
+      this.belongsTo(models.Household, { foreignKey: 'householdId', as: 'household' });
+    }
+  }
+  Resident.init({
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
-    onDelete: 'CASCADE',
-    field: 'household_id',
-  },
-  fullName: {
-    type: DataTypes.STRING(150),
-    allowNull: false,
-    field: 'full_name',
-  },
-  dateOfBirth: {
-    type: DataTypes.DATEONLY,
-    allowNull: true,
-    field: 'date_of_birth',
-  },
-  idCardNumber: {
-    type: DataTypes.STRING(20),
-    allowNull: true,
-    field: 'id_card_number',
-  },
-  relationshipWithOwner: {
-    type: DataTypes.STRING(100),
-    allowNull: true,
-    field: 'relationship_with_owner',
-  },
-  createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-    field: 'created_at',
-  },
-  updatedAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-    field: 'updated_at',
-  },
-}, {
-  tableName: 'residents',
-  timestamps: true,
-  underscored: true,
-});
-
-Resident.belongsTo(Household, { foreignKey: 'householdId', as: 'household' });
-
-module.exports = Resident;
+    householdId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: 'household_id',
+    },
+    fullName: {
+      type: DataTypes.STRING(150),
+      allowNull: false,
+      field: 'full_name',
+    },
+    dateOfBirth: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+      field: 'date_of_birth',
+    },
+    idCardNumber: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      field: 'id_card_number',
+    },
+    relationshipWithOwner: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      field: 'relationship_with_owner',
+    },
+  }, {
+    sequelize,
+    modelName: 'Resident',
+    tableName: 'residents',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  });
+  return Resident;
+};
