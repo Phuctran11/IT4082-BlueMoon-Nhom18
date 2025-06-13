@@ -58,6 +58,11 @@ const Sidebar = () => {
                   <span>Quản lý Tài khoản</span>
                 </NavLink>
               </li>
+              <li>
+                <NavLink to="/household-stats">
+                  <span>Thống kê Hộ khẩu</span>
+                </NavLink>
+              </li>
             </> 
           )}
         </ul>

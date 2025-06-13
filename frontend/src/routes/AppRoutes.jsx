@@ -18,6 +18,7 @@ import HouseholdManagementPage from '../pages/HouseholdManagementPage';
 import FeeTypeManagement from '../pages/FeeTypeManagement';
 import FeePeriodManagement from '../pages/FeePeriodManagement';
 import FeePeriodDetailPage from '../pages/FeePeriodDetailPage';
+import HouseholdStatsPage from '../pages/HouseholdStatsPage';
 
 const AppRoutes = () => {
   return (
@@ -39,6 +40,7 @@ const AppRoutes = () => {
           <Route element={<RoleBasedGuard allowedRoles={['Tổ trưởng', 'Tổ phó']} />}>
             <Route path="households" element={<HouseholdManagementPage />} />
             <Route path="users" element={<UserManagementPage />} />
+            <Route path="household-stats" element={<HouseholdStatsPage />} />
           </Route>
 
           {/* Nhóm route cho Quản lý Tài chính */}
