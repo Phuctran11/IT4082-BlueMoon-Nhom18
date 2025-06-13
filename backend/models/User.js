@@ -6,12 +6,12 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       this.belongsToMany(models.Role, {
-        through: models.UserRole, // Sử dụng model trung gian
-        foreignKey: 'userId',
-        otherKey: 'roleId',
+        through: models.UserRole,
+        foreignKey: 'user_id', // Dùng tên cột trong DB
+        otherKey: 'role_id',
       });
       this.hasMany(models.Household, {
-        foreignKey: 'ownerId',
+        foreignKey: 'owner_id',
         as: 'OwnedHouseholds'
       });
     }
@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
     username: { type: DataTypes.STRING, allowNull: false, unique: true },
     password: { type: DataTypes.STRING, allowNull: false },
     fullName: { type: DataTypes.STRING, field: 'full_name', allowNull: false },
+    email: { type: DataTypes.STRING, unique: true, validate: { isEmail: true } },
+    phone_number: { type: DataTypes.STRING },
+    avatar_url: { type: DataTypes.TEXT },
+    status: { type: DataTypes.STRING, defaultValue: 'active' },
   }, {
     sequelize,
     modelName: 'User',

@@ -1,18 +1,17 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './Sidebar.css'; // File CSS chúng ta sẽ tạo ở bước tiếp theo
-
-// Import icons nếu bạn muốn (ví dụ dùng react-icons)
-// import { FaTachometerAlt, FaFileInvoiceDollar, FaUsers } from 'react-icons/fa';
+import './Sidebar.css'; // Chúng ta sẽ tạo file CSS này ngay sau đây
 
 const Sidebar = () => {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const isAccountant = user?.roles?.includes('Kế toán');
+  const isManager = user?.roles?.includes('Tổ trưởng') || user?.roles?.includes('Tổ phó');
 
   const handleLogout = () => {
     logout();
-    // Sau khi logout, điều hướng người dùng về trang đăng nhập
     navigate('/login');
   };
 
@@ -23,29 +22,26 @@ const Sidebar = () => {
       </div>
       <nav className="sidebar-nav">
         <ul>
-          {/* 
-            Sử dụng NavLink thay vì thẻ <a> để có class 'active' tự động
-            giúp chúng ta biết người dùng đang ở trang nào.
-          */}
           <li>
             <NavLink to="/dashboard">
-              {/* <FaTachometerAlt />  */}
               <span>Thống kê</span>
             </NavLink>
           </li>
-          <li>
-            <NavLink to="/fee-types">
-              {/* <FaFileInvoiceDollar /> */}
-              <span>Quản lý phí</span>
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/households">
-              {/* <FaUsers /> */}
-              <span>Quản lý dân cư</span>
-            </NavLink>
-          </li>
-          {/* Thêm các link khác ở đây */}
+          
+          {isAccountant && (
+            <>
+              <li><NavLink to="/fee-types"><span>Quản lý Loại phí</span></NavLink></li>
+              <li><NavLink to="/fee-periods"><span>Quản lý Đợt thu</span></NavLink></li>
+            </>
+          )}
+          
+          {isManager && (
+            <li>
+              <NavLink to="/households">
+                <span>Quản lý dân cư</span>
+              </NavLink>
+            </li>
+          )}
         </ul>
       </nav>
       <div className="sidebar-footer">
@@ -57,4 +53,5 @@ const Sidebar = () => {
   );
 };
 
+// DÒNG QUAN TRỌNG NHẤT LÀ ĐÂY:
 export default Sidebar;
