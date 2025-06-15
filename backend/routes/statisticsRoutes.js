@@ -6,14 +6,26 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 // Tất cả các route thống kê đều yêu cầu phải đăng nhập
 router.use(protect);
 
-// Route cho thống kê hộ khẩu, chỉ Tổ trưởng, Tổ phó, và Admin được truy cập
+// Chỉ Tổ trưởng, Tổ phó, Admin mới có quyền xem thống kê
+router.use(authorize('Tổ trưởng', 'Tổ phó', 'Admin'));
+
 router.get(
   '/households',
-  authorize('Tổ trưởng', 'Tổ phó', 'Admin'),
   statisticsController.getHouseholdStats
 );
 
-// (Trong tương lai, bạn có thể thêm các route thống kê khác ở đây)
-// router.get('/residents', authorize(...), statisticsController.getResidentStats);
+// Route cho thống kê nhân khẩu
+router.get('/residents', statisticsController.getResidentStats);
+
+router.get('/residents/export/excel', statisticsController.exportResidentStatsToExcel);
+// --- THÊM ROUTE MỚI ĐỂ XUẤT PDF ---
+router.get('/residents/export/pdf', statisticsController.exportResidentStatsToPdf);
+
+router.get('/households/export/excel', statisticsController.exportHouseholdStatsToExcel);
+// --- THÊM ROUTE MỚI ĐỂ XUẤT PDF ---
+router.get('/households/export/pdf', statisticsController.exportHouseholdStatsToPdf);
+
+
+
 
 module.exports = router;

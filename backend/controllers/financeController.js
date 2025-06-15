@@ -1,5 +1,5 @@
 // THAY ĐỔI Ở ĐÂY: Import model và service
-const { FeeType } = require('../models');
+const { Invoice, InvoiceDetail, FeeType, FeePeriod } = require('../models');
 const invoiceService = require('../services/invoiceService');
 
 // CREATE a new FeeType
@@ -68,20 +68,39 @@ exports.deleteFeeType = async (req, res) => {
   }
 };
 
-// GENERATE INVOICES for a FeePeriod
 exports.generateInvoices = async (req, res) => {
   try {
     const { feePeriodId } = req.params;
-    const { feeTypeId } = req.body;
-
-    if (!feeTypeId) {
-      return res.status(400).json({ success: false, message: 'Vui lòng chọn một loại phí để áp dụng.' });
-    }
-
-    const result = await invoiceService.generateInvoicesForPeriod(feePeriodId, feeTypeId);
-
+    const result = await invoiceService.generateInvoicesForPeriod(feePeriodId);
     res.status(201).json(result);
+} catch (error) {
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+  }
+};
+
+// GET: Lấy tất cả hóa đơn của hộ khẩu mà người dùng đang đăng nhập thuộc về
+exports.getMyInvoices = async (req, res) => {
+  try {
+    // Giả sử middleware đã xác định được người dùng thuộc hộ khẩu nào
+    // Đây là một logic phức tạp cần làm sau, tạm thời hardcode
+    const householdId = req.user.householdId; // Sẽ cần thêm householdId vào token hoặc CSDL User
+
+    if (!householdId) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin hộ khẩu của bạn.' });
+    }
+    
+    const invoices = await Invoice.findAll({
+      where: { householdId },
+      include: [
+        { model: FeePeriod, attributes: ['name', 'description'] },
+        // Lấy chi tiết hóa đơn
+        { model: InvoiceDetail, include: [{ model: FeeType, attributes: ['name', 'unit'] }] }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.status(200).json({ success: true, data: invoices });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
   }
 };

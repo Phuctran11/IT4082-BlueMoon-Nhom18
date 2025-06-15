@@ -1,66 +1,47 @@
-// THAY ĐỔI Ở ĐÂY: Import tất cả model và cả sequelize từ file index chung
-const { sequelize, Household, FeeType, Invoice, InvoiceDetail } = require('../models');
+// services/invoiceService.js
+const { sequelize, Household, PeriodFee, Invoice, InvoiceDetail } = require('../models');
 
-/**
- * Lập hóa đơn hàng loạt cho tất cả các hộ dân trong một đợt thu, dựa trên một loại phí.
- * @param {number} feePeriodId - ID của đợt thu phí
- * @param {number} feeTypeId - ID của loại phí được áp dụng
- */
-exports.generateInvoicesForPeriod = async (feePeriodId, feeTypeId) => {
-  // Bắt đầu một transaction để đảm bảo toàn vẹn dữ liệu
+exports.generateInvoicesForPeriod = async (feePeriodId) => {
   const t = await sequelize.transaction();
-
   try {
-    // 1. Lấy thông tin về loại phí được chọn
-    const feeType = await FeeType.findByPk(feeTypeId, { transaction: t });
-    if (!feeType) {
-      throw new Error('Không tìm thấy loại phí này.');
-    }
-
-    // 2. Lấy danh sách tất cả các hộ dân đang hoạt động
+    // 1. Lấy tất cả các khoản thu "Bắt buộc" trong đợt thu này
+    const periodFees = await PeriodFee.findAll({
+      where: { feePeriodId, type: 'Bắt buộc' },
+      transaction: t
+    });
+    if (periodFees.length === 0) throw new Error('Chưa có khoản thu nào được thêm vào đợt này.');
+    
+    // 2. Lấy tất cả hộ dân
     const households = await Household.findAll({ where: { status: 'occupied' }, transaction: t });
-    if (households.length === 0) {
-      throw new Error('Không có hộ dân nào để lập hóa đơn.');
-    }
 
-    let invoicesCreatedCount = 0;
-
-    // 3. Lặp qua từng hộ dân để tạo hóa đơn
+    // 3. Lặp qua từng hộ dân
     for (const household of households) {
-      const quantity = 1; 
-      const amount = quantity * feeType.price;
-
+      // Tính tổng tiền cho hóa đơn của hộ này
+      const totalAmount = periodFees.reduce((sum, fee) => sum + Number(fee.amount), 0);
+      
       // 4. Tạo hóa đơn (Invoice)
       const newInvoice = await Invoice.create({
         householdId: household.id,
-        feePeriodId: feePeriodId,
-        totalAmount: amount,
+        feePeriodId,
+        totalAmount,
         status: 'unpaid',
-        notes: `Hóa đơn tự động cho phí: ${feeType.name}`,
       }, { transaction: t });
 
-      // 5. Tạo chi tiết hóa đơn (InvoiceDetail)
-      await InvoiceDetail.create({
-        invoiceId: newInvoice.id,
-        feeTypeId: feeType.id,
-        quantity: quantity,
-        priceAtTime: feeType.price,
-        amount: amount,
-      }, { transaction: t });
-
-      invoicesCreatedCount++;
+      // 5. Tạo các chi tiết hóa đơn (InvoiceDetail)
+      for (const fee of periodFees) {
+        await InvoiceDetail.create({
+          invoiceId: newInvoice.id,
+          feeTypeId: fee.feeTypeId,
+          quantity: 1, // Giả sử quantity là 1
+          priceAtTime: fee.amount,
+          amount: fee.amount,
+        }, { transaction: t });
+      }
     }
-
-    // 6. Nếu mọi thứ thành công, commit transaction
     await t.commit();
-
-    return {
-      success: true,
-      message: `Đã tạo thành công ${invoicesCreatedCount} hóa đơn.`,
-    };
+    return { success: true, message: `Đã tạo hóa đơn thành công cho ${households.length} hộ.` };
   } catch (error) {
-    // 7. Nếu có bất kỳ lỗi nào, rollback tất cả thay đổi
     await t.rollback();
-    throw new Error(error.message || 'Lỗi không xác định khi tạo hóa đơn.');
+    throw error;
   }
 };

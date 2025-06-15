@@ -1,10 +1,28 @@
-const { Household } = require('../models');
-
+const { Household, sequelize } = require('../models');
+const { Op } = require('sequelize');
 // GET all households
 exports.getAllHouseholds = async (req, res) => {
   try {
-    // BỎ PHẦN "include" VÌ KHÔNG CÒN QUAN HỆ VỚI USER
+    // Lấy các tham số lọc từ URL
+    const { apartmentCode, ownerName, address, apartmentType } = req.query;
+
+    const whereClause = {};
+
+    if (apartmentCode) {
+      whereClause.apartmentCode = { [Op.iLike]: `%${apartmentCode}%` };
+    }
+    if (ownerName) {
+      whereClause.ownerName = { [Op.iLike]: `%${ownerName}%` };
+    }
+    if (address) {
+      whereClause.address = { [Op.iLike]: `%${address}%` };
+    }
+    if (apartmentType) {
+      whereClause.apartmentType = apartmentType;
+    }
+
     const households = await Household.findAll({
+      where: whereClause,
       order: [['apartmentCode', 'ASC']],
     });
     res.status(200).json({ success: true, data: households });
