@@ -23,8 +23,19 @@ exports.getFeePeriodById = async (req, res) => {
 
 exports.createFeePeriod = async (req, res) => {
   try {
-    const { name, startDate, endDate } = req.body;
-    const newPeriod = await FeePeriod.create({ name, startDate, endDate });
+    const { name, startDate, endDate, type, description } = req.body;
+
+    if (!name || !startDate || !endDate) {
+        return res.status(400).json({ success: false, message: 'Tên, ngày bắt đầu và ngày kết thúc là bắt buộc.' });
+    }
+
+     const newPeriod = await FeePeriod.create({
+      name,
+      startDate,
+      endDate,
+      type,
+      description
+    });
     res.status(201).json({ success: true, data: newPeriod });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });

@@ -12,6 +12,8 @@ const residentRoutes = require('./residentRoutes');
 const statisticsRoutes = require('./statisticsRoutes');
 // Thêm các file routes khác mà bạn đã tạo code khung ở đây
 const householdRoutes = require('./householdRoutes');
+const periodFeeRoutes = require('./periodFeeRoutes');
+const invoiceRoutes = require('./invoiceRoutes');
 // const userRoutes = require('./userRoutes');
 
 // Gán các route vào đường dẫn tương ứng
@@ -24,6 +26,9 @@ router.use('/roles', roleRoutes);
 router.use('/households', householdRoutes);
 router.use('/residents', residentRoutes); // Route cho nhân khẩu
 router.use('/statistics', statisticsRoutes);
+router.use('/period-fees', periodFeeRoutes);
+router.use('/invoices', invoiceRoutes);
+
 // router.use('/users', userRoutes);
 
 // Export router chính để server.js có thể sử dụng
