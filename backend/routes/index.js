@@ -1,22 +1,30 @@
 const express = require('express');
 const router = express.Router();
 
-// Import tất cả các routes
-const authRoutes = require('./routes/authRoutes');
-const financeRoutes = require('./routes/financeRoutes');
-const householdRoutes = require('./routes/householdRoutes');
-const residentRoutes = require('./routes/residentRoutes');
-const roleRoutes = require('./routes/roleRoutes');
-const userRoutes = require('./routes/userRoutes');
+// Import các file route của bạn
+const authRoutes = require('./authRoutes');
+const feeTypeRoutes = require('./feeTypeRoutes');
+const feePeriodRoutes = require('./feePeriodRoutes');
+const dashboardRoutes = require('./dashboardRoutes');
+const roleRoutes = require('./roleRoutes'); 
+const userRoutes = require('./userRoutes');
+const residentRoutes = require('./residentRoutes');
+const statisticsRoutes = require('./statisticsRoutes');
+// Thêm các file routes khác mà bạn đã tạo code khung ở đây
+const householdRoutes = require('./householdRoutes');
+// const userRoutes = require('./userRoutes');
 
-// Đăng ký các routes với prefix tương ứng
-router.use('/auth', authRoutes);           // /api/auth/*
-router.use('/finance', financeRoutes);     // /api/finance/*
-router.use('/households', householdRoutes); // /api/households/*
-router.use('/residents', residentRoutes);   // /api/residents/*
-router.use('/roles', roleRoutes);          // /api/roles/*
-router.use('/users', userRoutes);          // /api/users/*
+// Gán các route vào đường dẫn tương ứng
+router.use('/auth', authRoutes);
+router.use('/fee-periods', feePeriodRoutes); // Route cho kỳ thu phí
+router.use('/fee-types', feeTypeRoutes); // Route cho loại phí (có thể gộp chung với financeRoutes nếu cần)
+router.use('/dashboard', dashboardRoutes); // Route cho dashboard
+router.use('/users', userRoutes);
+router.use('/roles', roleRoutes);
+router.use('/households', householdRoutes);
+router.use('/residents', residentRoutes); // Route cho nhân khẩu
+router.use('/statistics', statisticsRoutes);
+// router.use('/users', userRoutes);
 
-
-
+// Export router chính để server.js có thể sử dụng
 module.exports = router;

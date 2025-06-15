@@ -1,40 +1,23 @@
+// models/Household.js
 'use strict';
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class Household extends Model {
     static associate(models) {
-      this.belongsTo(models.User, { foreignKey: 'ownerId', as: 'owner' });
-      this.hasMany(models.Resident, { foreignKey: 'householdId' });
-      this.hasMany(models.Invoice, { foreignKey: 'householdId' });
+      this.hasMany(models.Resident, { foreignKey: 'household_id' });
+      this.hasMany(models.Invoice, { foreignKey: 'household_id' });
     }
   }
   Household.init({
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    apartmentCode: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      unique: true,
-      field: 'apartment_code',
-    },
-    ownerId: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      field: 'owner_id',
-    },
-    area: {
-      type: DataTypes.NUMERIC(10, 2),
-      allowNull: true,
-    },
-    status: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      defaultValue: 'occupied',
-    },
+    apartmentCode: { type: DataTypes.STRING, field: 'apartment_code', allowNull: false, unique: true },
+    area: { type: DataTypes.NUMERIC(10, 2) },
+    status: { type: DataTypes.STRING, allowNull: false, defaultValue: 'occupied' },
+    address: { type: DataTypes.STRING },
+    apartmentType: { type: DataTypes.STRING, field: 'apartment_type' },
+    // --- THAY ĐỔI THEO ĐẶC TẢ ---
+    ownerName: { type: DataTypes.STRING, field: 'owner_name', allowNull: false }, // Bắt buộc
+    memberCount: { type: DataTypes.INTEGER, field: 'member_count', allowNull: false } // Bắt buộc
   }, {
     sequelize,
     modelName: 'Household',
