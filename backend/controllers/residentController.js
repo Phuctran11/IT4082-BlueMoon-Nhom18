@@ -1,6 +1,5 @@
 const { Op } = require('sequelize');
-const { Resident } = require('../models/Resident');
-const { Household } = require('../models/Household');
+const { Resident, Household } = require('../models');
 const apiResponse = require('../utils/apiResponse');
 
 // Lấy danh sách nhân khẩu theo hộ khẩu

@@ -1,5 +1,5 @@
 const { Op, fn, col } = require('sequelize');
-const { Household } = require('../models/Household');
+const { Household } = require('../models');
 const apiResponse = require('../utils/apiResponse');
 
 // Lấy tất cả hộ khẩu

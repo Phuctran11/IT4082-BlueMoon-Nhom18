@@ -1,6 +1,4 @@
-const User = require('../models/User');
-const {Role} = require('../models/Role');
-const UserRole = require('../models/userRole');
+const { User, Role, UserRole } = require('../models');
 const apiResponse = require('../utils/apiResponse');
 
 // Phân quyền tài khoản user

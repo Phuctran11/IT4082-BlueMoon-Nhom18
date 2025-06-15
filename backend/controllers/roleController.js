@@ -1,4 +1,4 @@
-const { Role } = require('../models/Role');
+const { Role } = require('../models');
 const apiResponse = require('../utils/apiResponse');
 
 // Lấy danh sách vai trò

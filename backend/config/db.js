@@ -1,4 +1,4 @@
-require('dotenv').config(); // Đảm bảo gọi dòng này ở đầu file nếu dùng .env
+require('dotenv').config();
 
 const { Sequelize } = require('sequelize');
 
