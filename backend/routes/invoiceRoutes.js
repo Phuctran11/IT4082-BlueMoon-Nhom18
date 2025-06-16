@@ -7,7 +7,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 router.use(protect, authorize('Kế toán'));
 
 // Route cho Cư dân xem hóa đơn của mình
-router.get('/my-invoices', authorize('Cư dân', 'Tổ trưởng', 'Tổ phó', 'Admin'), invoiceController.getMyInvoices);
+router.get('/my-invoices', authorize('Cư dân', 'Tổ trưởng', 'Tổ phó', 'Kế toán', 'Admin'), invoiceController.getMyInvoices);
 
 // Route để phát hành hóa đơn hàng loạt
 router.post('/generate-from-period/:feePeriodId',authorize('Kế toán', 'Admin'),  invoiceController.generateInvoices);
