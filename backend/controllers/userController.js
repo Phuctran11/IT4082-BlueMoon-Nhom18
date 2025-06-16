@@ -169,27 +169,36 @@ exports.assignRoleToUser = async (req, res) => {
 exports.assignHouseholdToUser = async (req, res) => {
   try {
     const { userId } = req.params;
+    // Lấy householdId từ body, nó có thể là một số, chuỗi rỗng, hoặc null
     const { householdId } = req.body;
 
+    // 1. Tìm người dùng cần cập nhật
     const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
     }
 
-    // Nếu householdId là null hoặc rỗng, tức là gỡ khỏi hộ khẩu
-    if (!householdId) {
-        user.householdId = null;
-    } else {
-        const household = await Household.findByPk(householdId);
-        if (!household) {
-            return res.status(404).json({ success: false, message: 'Không tìm thấy hộ khẩu.' });
-        }
-        user.householdId = householdId;
+    // 2. Chuyển đổi giá trị nhận được thành giá trị hợp lệ cho CSDL
+    // Nếu householdId được gửi lên và không phải là chuỗi rỗng, thì dùng nó.
+    // Ngược lại, set thành null (để gỡ khỏi hộ khẩu).
+    const newHouseholdId = householdId ? parseInt(householdId, 10) : null;
+
+    // 3. Nếu gán vào một hộ khẩu mới, kiểm tra xem hộ khẩu đó có tồn tại không
+    if (newHouseholdId !== null) {
+      const household = await Household.findByPk(newHouseholdId);
+      if (!household) {
+        return res.status(404).json({ success: false, message: 'Không tìm thấy hộ khẩu để gán.' });
+      }
     }
 
-    await user.save();
+    // 4. Sử dụng phương thức 'update' để cập nhật trực tiếp và an toàn
+    await user.update({
+      householdId: newHouseholdId
+    });
+
     res.status(200).json({ success: true, message: 'Cập nhật hộ khẩu cho người dùng thành công.' });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+    console.error("LỖI KHI GÁN HỘ KHẨU:", error);
+    res.status(500).json({ success: false, message: 'Lỗi server khi gán hộ khẩu.', error: error.message });
   }
 };
