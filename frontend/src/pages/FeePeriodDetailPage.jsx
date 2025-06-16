@@ -1,93 +1,219 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+
 import * as financeService from '../services/financeService';
+import * as feeService from '../services/feeService';
+import * as periodFeeService from '../services/periodFeeService';
+import * as invoiceService from '../services/invoiceService';
 import Spinner from '../components/common/Spinner';
-import './FeePeriodDetailPage.css'; // Sẽ tạo file CSS sau
+import './FeePeriodDetailPage.css'; // Dùng lại CSS cũ
 
 const FeePeriodDetailPage = () => {
-  const { id } = useParams(); // Lấy ID của đợt thu từ URL
-  const [period, setPeriod] = useState(null);
-  const [feeTypes, setFeeTypes] = useState([]);
-  const [selectedFeeType, setSelectedFeeType] = useState('');
+  const { id: feePeriodId } = useParams(); // Lấy ID của đợt thu
+  
+  // State cho dữ liệu
+  const [period, setPeriod] = useState(null); // Thông tin đợt thu
+  const [periodFees, setPeriodFees] = useState([]); // Danh sách các khoản thu trong đợt
+  const [allFeeTypes, setAllFeeTypes] = useState([]); // Danh sách tất cả loại phí để chọn
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+
+  // State cho Modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPeriodFee, setCurrentPeriodFee] = useState(null);
+  const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
+  const [descriptionToShow, setDescriptionToShow] = useState('');
+  const [formData, setFormData] = useState({
+    feeTypeId: '', amount: '', description: '', type: 'Bắt buộc'
+  });
+
+  // Tải tất cả dữ liệu cần thiết
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [periodRes, periodFeesRes, feeTypesRes] = await Promise.all([
+        financeService.getFeePeriodById(feePeriodId),
+        periodFeeService.getFeesInPeriod(feePeriodId),
+        feeService.getAllFeeTypes()
+      ]);
+      setPeriod(periodRes.data.data);
+      setPeriodFees(periodFeesRes.data.data);
+      setAllFeeTypes(feeTypesRes.data.data);
+    } catch (error) {
+      console.error("Lỗi tải dữ liệu trang chi tiết:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [feePeriodId]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const [periodRes, feeTypesRes] = await Promise.all([
-          financeService.getFeePeriodById(id),
-          financeService.getAllFeeTypes()
-        ]);
-        setPeriod(periodRes.data.data);
-        setFeeTypes(feeTypesRes.data.data);
-      } catch (err) {
-        console.error("Lỗi tải dữ liệu trang chi tiết:", err);
-        setError('Không thể tải được dữ liệu cần thiết.');
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
-  }, [id]);
+  }, [fetchData]);
 
-  const handleGenerateInvoices = async () => {
-    if (!selectedFeeType) {
-      alert('Vui lòng chọn một loại phí để áp dụng!');
-      return;
+  // Logic cho Modal
+  const handleOpenModal = (item = null) => {
+    if (item) {
+      setCurrentPeriodFee(item);
+      setFormData({
+        feeTypeId: item.feeTypeId,
+        amount: item.amount,
+        description: item.description || '',
+        type: item.type,
+      });
+    } else {
+      setCurrentPeriodFee(null);
+      setFormData({ feeTypeId: '', amount: '', description: '', type: 'Bắt buộc' });
     }
-    if (!window.confirm(`Bạn có chắc muốn lập hóa đơn cho loại phí này vào đợt thu "${period.name}"? Thao tác này không thể hoàn tác.`)) {
-      return;
-    }
+    setIsModalOpen(true);
+  };
+  const handleCloseModal = () => setIsModalOpen(false);
+  const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleOpenDescriptionModal = (description) => {
+    setDescriptionToShow(description);
+    setIsDescriptionModalOpen(true);
+  };
+
+  const handleCloseDescriptionModal = () => {
+    setIsDescriptionModalOpen(false);
+    setDescriptionToShow('');
+  };
+
+  // Logic Thêm/Sửa Khoản thu
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await financeService.generateInvoicesForPeriod(id, selectedFeeType);
-      alert(response.data.message);
-      // TODO: Thêm logic tải lại danh sách hóa đơn của đợt thu này ở đây
-    } catch (err) {
-      alert('Lỗi: ' + (err.response?.data?.message || 'Thao tác thất bại.'));
+      if (currentPeriodFee) {
+        await periodFeeService.updateFeeInPeriod(currentPeriodFee.id, formData);
+      } else {
+        await periodFeeService.addFeeToPeriod(feePeriodId, formData);
+      }
+      handleCloseModal();
+      fetchData(); // Tải lại toàn bộ dữ liệu
+    } catch (err) { alert('Thao tác thất bại: ' + (err.response?.data?.message || err.message)); }
+  };
+
+  // Logic Xóa Khoản thu
+  const handleDelete = async (id) => {
+    if (window.confirm('Bạn có chắc muốn xóa khoản thu này khỏi đợt thu?')) {
+      try {
+        await periodFeeService.deleteFeeInPeriod(id);
+        fetchData();
+      } catch (err) { alert('Xóa thất bại: ' + (err.response?.data?.message || err.message)); }
     }
+  };
+  
+  // Logic Phát hành Hóa đơn
+  const handleGenerateInvoices = async () => {
+    if (!window.confirm(`Phát hành hóa đơn cho đợt thu "${period.name}"? Thao tác này sẽ tạo hóa đơn cho tất cả hộ dân và không thể hoàn tác.`)) return;
+    try {
+      // API này không cần body nữa
+      const response = await invoiceService.generateInvoicesForPeriod(feePeriodId);
+      alert(response.data.message);
+    } catch (err) { alert('Lỗi: ' + (err.response?.data?.message || 'Thao tác thất bại.')); }
   };
 
   if (loading) return <Spinner />;
-  if (error) return <div className="error-message">{error}</div>;
-  if (!period) return <div>Không tìm thấy thông tin đợt thu phí.</div>;
+  if (!period) return <div>Không tìm thấy đợt thu phí.</div>;
 
   return (
     <div className="page-container">
       <div className="page-header">
         <h1>Chi tiết Đợt thu: {period.name}</h1>
-      </div>
-      
-      <div className="info-card">
-        <p><strong>Từ ngày:</strong> {new Date(period.startDate).toLocaleDateString('vi-VN')}</p>
-        <p><strong>Đến ngày:</strong> {new Date(period.endDate).toLocaleDateString('vi-VN')}</p>
+        <button onClick={handleGenerateInvoices} className="generate-btn">
+          Phát hành Hóa đơn hàng loạt
+        </button>
       </div>
 
       <div className="action-card">
-        <h2>Lập Hóa đơn hàng loạt</h2>
-        <p>Chọn một loại phí dưới đây để tự động tạo hóa đơn cho tất cả các hộ dân trong đợt thu này.</p>
-        <div className="invoice-generator-form">
-          <select value={selectedFeeType} onChange={(e) => setSelectedFeeType(e.target.value)}>
-            <option value="" disabled>-- Vui lòng chọn loại phí --</option>
-            {feeTypes.map(ft => (
-              <option key={ft.id} value={ft.id}>
-                {ft.name} ({Number(ft.price).toLocaleString('vi-VN')} đ / {ft.unit})
-              </option>
+        <h2>Danh sách Khoản thu trong Đợt</h2>
+        <button className="add-btn" onClick={() => handleOpenModal()}>Thêm Khoản thu</button>
+      </div>
+
+      <div className="table-container">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Tên Khoản thu</th><th>Số tiền</th><th>Loại hình</th><th>Mô tả</th><th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {periodFees.map(pf => (
+              <tr key={pf.id}>
+                <td>{pf.FeeType?.name}</td>
+                <td>{Number(pf.amount).toLocaleString('vi-VN')} đ</td>
+                <td>{pf.type}</td>
+                <td>
+                  {pf.description ? (
+                    <button 
+                      className="view-description-btn" 
+                      onClick={() => handleOpenDescriptionModal(pf.description)}
+                    >
+                      Xem
+                    </button>
+                  ) : (
+                    <span className="no-description">(Không có)</span>
+                  )}
+                </td>
+                <td className="action-cell">
+                  <button className="edit-btn" onClick={() => handleOpenModal(pf)}>Sửa</button>
+                  <button className="delete-btn" onClick={() => handleDelete(pf.id)}>Xóa</button>
+                </td>
+              </tr>
             ))}
-          </select>
-          <button onClick={handleGenerateInvoices} disabled={!selectedFeeType} className="generate-btn">
-            Tạo Hóa đơn
-          </button>
+          </tbody>
+        </table>
+      </div>
+
+      {/* MODAL THÊM/SỬA KHOẢN THU */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>{currentPeriodFee ? 'Chỉnh sửa Khoản thu' : 'Thêm Khoản thu vào Đợt'}</h2>
+              <button className="close-btn" onClick={handleCloseModal}>×</button>
+            </div>
+            <form className="modal-form" onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>Loại phí*</label>
+                <select name="feeTypeId" value={formData.feeTypeId} onChange={handleInputChange} required disabled={!!currentPeriodFee}>
+                  <option value="" disabled>-- Chọn loại phí --</option>
+                  {allFeeTypes.map(ft => <option key={ft.id} value={ft.id}>{ft.name}</option>)}
+                </select>
+              </div>
+              <div className="form-group"><label>Số tiền*</label><input type="number" name="amount" value={formData.amount} onChange={handleInputChange} required /></div>
+              <div className="form-group">
+                <label>Loại hình*</label>
+                <select name="type" value={formData.type} onChange={handleInputChange} required>
+                  <option value="Bắt buộc">Bắt buộc</option><option value="Đóng góp">Đóng góp</option>
+                </select>
+              </div>
+              <div className="form-group"><label>Mô tả</label><textarea name="description" value={formData.description} onChange={handleInputChange}></textarea></div>
+              <div className="modal-footer">
+                <button type="button" className="cancel-btn" onClick={handleCloseModal}>Hủy</button>
+                <button type="submit" className="submit-btn">{currentPeriodFee ? 'Cập nhật' : 'Thêm'}</button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
-      
-      <div className="invoice-list-section">
-        <h2>Danh sách hóa đơn đã được tạo trong đợt này</h2>
-        <p>Chức năng đang được phát triển...</p>
-        {/* Phần này sẽ hiển thị danh sách các hóa đơn đã được tạo */}
-      </div>
+      )}
+
+      {/* MODAL MỚI ĐỂ XEM MÔ TẢ */}
+      {isDescriptionModalOpen && (
+        <div className="modal-overlay" onClick={handleCloseDescriptionModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Chi tiết Mô tả</h2>
+              <button className="close-btn" onClick={handleCloseDescriptionModal}>×</button>
+            </div>
+            <div className="modal-body description-body">
+              <p>{descriptionToShow}</p>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="submit-btn" onClick={handleCloseDescriptionModal}>Đóng</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

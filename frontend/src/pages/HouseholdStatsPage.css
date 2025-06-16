@@ -57,3 +57,19 @@
   font-size: 1.1rem;
   color: #6c757d;
 }
+
+/* ... */
+.action-bar {
+  display: flex;
+  justify-content: flex-end; /* Đẩy các nút qua phải */
+  gap: 1rem; /* Khoảng cách giữa các nút */
+  margin-bottom: 1rem;
+}
+
+.export-btn.excel {
+  background-color: #1a936f; /* Xanh lá */
+}
+
+.export-btn.pdf {
+  background-color: #dc3545; /* Đỏ */
+}

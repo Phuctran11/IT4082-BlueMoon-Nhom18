@@ -120,3 +120,41 @@
   font-size: 1.25rem;
   margin-bottom: 1rem;
 }
+
+/* Style cho phần xem trước mô tả trong bảng */
+.description-preview {
+  color: #6c757d;
+  font-style: italic;
+  margin-right: 8px;
+}
+
+.view-description-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  border: 1px solid #6c757d; /* Màu xám viền */
+  background-color: transparent;
+  color: #6c757d; /* Chữ màu xám */
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.view-description-btn:hover {
+  background-color: #6c757d;
+  color: white;
+}
+
+.no-description {
+  color: #aaa;
+  font-style: italic;
+}
+
+/* Style cho nội dung mô tả trong modal */
+.modal-body.description-body p {
+  white-space: pre-wrap; /* Giữ lại các dấu xuống dòng và khoảng trắng */
+  line-height: 1.6;
+  font-size: 1rem;
+  margin: 0;
+  max-height: 60vh; /* Giới hạn chiều cao và cho phép cuộn */
+  overflow-y: auto;
+}

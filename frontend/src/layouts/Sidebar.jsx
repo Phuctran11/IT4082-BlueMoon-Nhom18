@@ -47,20 +47,41 @@ const Sidebar = () => {
           
           {canManageCommunity && (
             <>
+            <li>
+                <NavLink to="/users">
+                  <span>Quản lý Tài khoản</span>
+                </NavLink>
+              </li>
               <li>
                 <NavLink to="/households">
                   {/* Đổi tên cho nhất quán với các menu khác */}
                   <span>Quản lý Hộ khẩu</span>
                 </NavLink>
               </li>
-              <li>
-                <NavLink to="/users">
-                  <span>Quản lý Tài khoản</span>
-                </NavLink>
-              </li>
+              
               <li>
                 <NavLink to="/household-stats">
                   <span>Thống kê Hộ khẩu</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/household-search">
+                  <span>Truy vấn Hộ khẩu</span>
+                </NavLink>
+              </li>
+              <li>
+                  <NavLink to="/residents">
+                    <span>Quản lý Nhân khẩu</span>
+                  </NavLink>
+                </li>
+               <li>
+                <NavLink to="/resident-stats">
+                  <span>Thống kê Nhân khẩu</span>
+                </NavLink>
+              </li>
+              <li> 
+                <NavLink to="/resident-search">
+                  <span>Truy vấn Nhân khẩu</span>
                 </NavLink>
               </li>
             </> 

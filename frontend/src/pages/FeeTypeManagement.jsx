@@ -100,7 +100,6 @@ const FeeTypeManagement = () => {
     }
   };
 
-
   return (
     <div className="page-container">
       {/* Phần tiêu đề và thanh chức năng */}

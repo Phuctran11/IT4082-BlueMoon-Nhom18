@@ -30,8 +30,22 @@ const HouseholdStatsPage = () => {
     }
   };
 
-  const handleExport = () => {
-    alert('Chức năng xuất file Excel/PDF đang được phát triển!');
+  const handleExportExcel = async () => {
+    try {
+      await statisticsService.exportHouseholdStatsToExcel(filters);
+    } catch (error) {
+      alert('Lỗi khi xuất file Excel.');
+      console.error(error);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    try {
+      await statisticsService.exportHouseholdStatsToPdf(filters);
+    } catch (error) {
+      alert('Lỗi khi xuất file PDF.');
+      console.error(error);
+    }
   };
 
   return (
@@ -41,6 +55,7 @@ const HouseholdStatsPage = () => {
       </div>
 
       <form className="filter-form card" onSubmit={handleSearch}>
+        <div className="filter-grid">
         <div className="filter-group">
           <label>Khu vực (Địa chỉ/Mã căn hộ)</label>
           <input type="text" name="area" placeholder="VD: Block A, Tầng 3" value={filters.area} onChange={handleFilterChange} />
@@ -55,6 +70,11 @@ const HouseholdStatsPage = () => {
             <option value="3 phòng ngủ">3 phòng ngủ</option>
             <option value="Penthouse">Penthouse</option>
           </select>
+        </div>
+        <div className="filter-group">
+          <label>Số thành viên</label>
+          <input type="number" name="memberCount" placeholder='VD: 4' value={filters.memberCount} onChange={handleFilterChange} />
+        </div>
         </div>
         <button type="submit" className="search-btn" disabled={loading}>
           {loading ? 'Đang xử lý...' : 'Thống kê'}
@@ -77,7 +97,8 @@ const HouseholdStatsPage = () => {
           </div>
 
           <div className="action-bar">
-            <button onClick={handleExport} className="export-btn">Xuất ra Excel/PDF</button>
+            <button onClick={handleExportExcel} className="export-btn excel">Xuất Excel</button>
+            <button onClick={handleExportPdf} className="export-btn pdf">Xuất PDF</button>
           </div>
 
           <div className="table-container">

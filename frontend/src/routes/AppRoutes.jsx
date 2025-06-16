@@ -19,7 +19,10 @@ import FeeTypeManagement from '../pages/FeeTypeManagement';
 import FeePeriodManagement from '../pages/FeePeriodManagement';
 import FeePeriodDetailPage from '../pages/FeePeriodDetailPage';
 import HouseholdStatsPage from '../pages/HouseholdStatsPage';
-
+import ResidentManagementPage from '../pages/ResidentManagementPage';
+import ResidentStatsPage from '../pages/ResidentStatsPage';
+import ResidentSearchPage from '../pages/ResidentSearchPage';
+import HouseholdSearchPage from '../pages/HouseholdSearchPage';
 const AppRoutes = () => {
   return (
     <Routes>
@@ -39,8 +42,12 @@ const AppRoutes = () => {
           {/* Nhóm route cho Quản lý Cộng đồng */}
           <Route element={<RoleBasedGuard allowedRoles={['Tổ trưởng', 'Tổ phó']} />}>
             <Route path="households" element={<HouseholdManagementPage />} />
+            <Route path="residents" element={<ResidentManagementPage />} />
             <Route path="users" element={<UserManagementPage />} />
+            <Route path="resident-search" element={<ResidentSearchPage />} />
+            <Route path="resident-stats" element={<ResidentStatsPage />} />
             <Route path="household-stats" element={<HouseholdStatsPage />} />
+            <Route path="household-search" element={<HouseholdSearchPage />} />
           </Route>
 
           {/* Nhóm route cho Quản lý Tài chính */}
