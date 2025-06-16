@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import * as userService from '../services/userService';
 import * as roleService from '../services/roleService';
+import * as householdService from '../services/householdService';
 import { useAuth } from '../context/AuthContext';
 import Spinner from '../components/common/Spinner';
 import './UserManagementPage.css';
@@ -26,6 +27,11 @@ const UserManagementPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [roleToAssign, setRoleToAssign] = useState('');
+
+
+  const [allHouseholds, setAllHouseholds] = useState([]);
+  const [isHouseholdModalOpen, setIsHouseholdModalOpen] = useState(false);
+  const [householdToAssign, setHouseholdToAssign] = useState('');
 
   // =================================================================
   // DATA FETCHING & LOGIC
@@ -57,6 +63,16 @@ const UserManagementPage = () => {
       }
     };
     fetchRoles();
+  }, [fetchUsers]);
+
+  useEffect(() => {
+    const fetchHouseholds = async () => {
+      try {
+        const res = await householdService.getAllHouseholds();
+        setAllHouseholds(res.data.data);
+      } catch (err) { console.error("Lỗi tải hộ khẩu", err); }
+    };
+    fetchHouseholds();
   }, [fetchUsers]);
 
   // Logic lọc dữ liệu ở phía Frontend
@@ -121,6 +137,7 @@ const UserManagementPage = () => {
     setIsModalOpen(true);
   };
 
+
   const handleCloseModal = () => setIsModalOpen(false);
 
   const handleAssignRole = async () => {
@@ -142,6 +159,25 @@ const UserManagementPage = () => {
     }
   };
 
+  const handleOpenHouseholdModal = (user) => {
+    setSelectedUser(user);
+    // Lấy householdId hiện tại của user để hiển thị trên dropdown
+    setHouseholdToAssign(user.householdId || '');
+    setIsHouseholdModalOpen(true);
+  };
+  const handleCloseHouseholdModal = () => setIsHouseholdModalOpen(false);
+
+  const handleAssignHousehold = async () => {
+    try {
+      // Gửi cả giá trị rỗng (để gỡ)
+      await userService.assignHousehold(selectedUser.id, householdToAssign || null);
+      alert('Cập nhật hộ khẩu thành công!');
+      handleCloseHouseholdModal();
+      fetchUsers();
+    } catch (err) {
+      alert('Thao tác thất bại: ' + (err.response?.data?.message || 'Lỗi server'));
+    }
+  };
   // =================================================================
   // RENDER
   // =================================================================
@@ -211,6 +247,7 @@ const UserManagementPage = () => {
                     >
                       {user.status === 'active' ? 'Khóa' : 'Mở khóa'}
                     </button>
+                    <button className="assign-household-btn" onClick={() => handleOpenHouseholdModal(user)}>Gán Hộ</button>
                     <button
                       className="assign-btn"
                       onClick={() => handleOpenAssignRoleModal(user)}
@@ -232,6 +269,33 @@ const UserManagementPage = () => {
           </tbody>
         </table>
       </div>
+
+      {/* MODAL GÁN HỘ KHẨU */}
+      {isHouseholdModalOpen && selectedUser && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>Gán Hộ khẩu cho: {selectedUser.fullName}</h2>
+              <button className="close-btn" onClick={handleCloseHouseholdModal}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label htmlFor="household-select">Chọn Hộ khẩu</label>
+                <select id="household-select" value={householdToAssign} onChange={(e) => setHouseholdToAssign(e.target.value)}>
+                  <option value="">-- Gỡ khỏi Hộ khẩu --</option>
+                  {allHouseholds.map(h => (
+                    <option key={h.id} value={h.id}>{h.apartmentCode} - {h.ownerName}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="cancel-btn" onClick={handleCloseHouseholdModal}>Hủy</button>
+              <button type="button" className="submit-btn" onClick={handleAssignHousehold}>Lưu thay đổi</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* MODAL PHÂN QUYỀN */}
       {isModalOpen && selectedUser && (
@@ -261,6 +325,7 @@ const UserManagementPage = () => {
             </div>
           </div>
         </div>
+        
       )}
     </div>
   );

@@ -23,6 +23,7 @@ import ResidentManagementPage from '../pages/ResidentManagementPage';
 import ResidentStatsPage from '../pages/ResidentStatsPage';
 import ResidentSearchPage from '../pages/ResidentSearchPage';
 import HouseholdSearchPage from '../pages/HouseholdSearchPage';
+import MyInvoicesPage from '../pages/MyInvoicesPage';
 const AppRoutes = () => {
   return (
     <Routes>
@@ -36,8 +37,13 @@ const AppRoutes = () => {
         <Route element={<MainLayout />}>
           
           <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="my-invoices" element={<MyInvoicesPage />} />
 
           {/* SỬ DỤNG CẤU TRÚC LỒNG NHAU Ở ĐÂY */}
+          {/* Việc ai có quyền SỬA/XÓA sẽ do API ở backend quyết định */}
+          <Route path="fee-types" element={<FeeTypeManagement />} />
+          <Route path="fee-periods" element={<FeePeriodManagement />} />
+          <Route path="fee-periods/:id" element={<FeePeriodDetailPage />} />
 
           {/* Nhóm route cho Quản lý Cộng đồng */}
           <Route element={<RoleBasedGuard allowedRoles={['Tổ trưởng', 'Tổ phó']} />}>
@@ -48,13 +54,6 @@ const AppRoutes = () => {
             <Route path="resident-stats" element={<ResidentStatsPage />} />
             <Route path="household-stats" element={<HouseholdStatsPage />} />
             <Route path="household-search" element={<HouseholdSearchPage />} />
-          </Route>
-
-          {/* Nhóm route cho Quản lý Tài chính */}
-          <Route element={<RoleBasedGuard allowedRoles={['Kế toán']} />}>
-            <Route path="fee-types" element={<FeeTypeManagement />} />
-            <Route path="fee-periods" element={<FeePeriodManagement />} />
-            <Route path="fee-periods/:id" element={<FeePeriodDetailPage />} />
           </Route>
 
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

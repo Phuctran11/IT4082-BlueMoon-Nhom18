@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'user_id', // Dùng tên cột trong DB
         otherKey: 'role_id',
       });
+      this.belongsTo(models.Household, { foreignKey: 'household_id' });
     }
   }
   User.init({
@@ -32,7 +33,8 @@ module.exports = (sequelize, DataTypes) => {
           user.password = await hashPassword(user.password);
         }
       },
-    }
+    },
+    householdId: { type: DataTypes.INTEGER, field: 'household_id' },
   });
   return User;
 };
