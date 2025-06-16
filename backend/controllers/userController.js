@@ -165,3 +165,31 @@ exports.assignRoleToUser = async (req, res) => {
     res.status(500).json({ success: false, message: 'Lỗi server khi gán vai trò.', error: error.message });
   }
 };
+
+exports.assignHouseholdToUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { householdId } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng.' });
+    }
+
+    // Nếu householdId là null hoặc rỗng, tức là gỡ khỏi hộ khẩu
+    if (!householdId) {
+        user.householdId = null;
+    } else {
+        const household = await Household.findByPk(householdId);
+        if (!household) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy hộ khẩu.' });
+        }
+        user.householdId = householdId;
+    }
+
+    await user.save();
+    res.status(200).json({ success: true, message: 'Cập nhật hộ khẩu cho người dùng thành công.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+  }
+};

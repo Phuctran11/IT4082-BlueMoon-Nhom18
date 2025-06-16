@@ -1,23 +1,19 @@
-// routes/userRoutes.js
+// backend/routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
-// Tất cả các route quản lý user đều cần đăng nhập và có quyền hạn quản trị
+// Tất cả các route trong file này đều yêu cầu đăng nhập
 router.use(protect);
-router.use(authorize('Tổ trưởng', 'Tổ phó', 'Admin'));
 
-// GET: Lấy danh sách tất cả người dùng
-router.get('/', userController.getAllUsers);
+// Áp dụng middleware phân quyền cho từng nhóm route
+const managerRoles = ['Admin', 'Tổ trưởng', 'Tổ phó'];
 
-// POST: Gán vai trò cho một người dùng
-router.post('/:userId/assign-role', userController.assignRoleToUser);
-
-// PATCH: Cập nhật trạng thái (Khóa/Mở khóa). Dùng PATCH vì đây là cập nhật một phần.
-router.patch('/:userId/status', userController.updateUserStatus);
-
-// DELETE: Xóa mềm một người dùng
-router.delete('/:userId', userController.deleteUser);
+router.get('/', authorize(...managerRoles), userController.getAllUsers);
+router.post('/:userId/assign-role', authorize(...managerRoles), userController.assignRoleToUser);
+router.patch('/:userId/status', authorize(...managerRoles), userController.updateUserStatus);
+router.put('/:userId/assign-household', authorize(...managerRoles), userController.assignHouseholdToUser);
+router.delete('/:userId', authorize(...managerRoles), userController.deleteUser);
 
 module.exports = router;

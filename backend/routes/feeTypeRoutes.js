@@ -9,13 +9,13 @@ router.use(protect);
 
 router.route('/')
   // Kế toán HOẶC Tổ trưởng đều có thể xem danh sách
-  .get(authorize('Kế toán', 'Tổ trưởng', 'Tổ phó'), feeTypeController.getAllFeeTypes)
+  .get(authorize('Kế toán', 'Tổ trưởng', 'Tổ phó', 'Cư dân', 'Admin'), feeTypeController.getAllFeeTypes)
   // Chỉ Kế toán mới được tạo
   .post(authorize('Kế toán'), feeTypeController.createFeeType);
 
 router.route('/:id')
-  .get(authorize('Kế toán', 'Tổ trưởng', 'Tổ phó'), feeTypeController.getFeeTypeById)
-  .put(authorize('Kế toán'), feeTypeController.updateFeeType)
-  .delete(authorize('Kế toán'), feeTypeController.deleteFeeType);
+  .get(authorize('Kế toán', 'Tổ trưởng', 'Tổ phó', 'Cư dân', 'Admin'), feeTypeController.getFeeTypeById)
+  .put(authorize('Kế toán', 'Admin'), feeTypeController.updateFeeType)
+  .delete(authorize('Kế toán', 'Admin'), feeTypeController.deleteFeeType);
 
 module.exports = router;

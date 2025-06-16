@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import * as feeService from '../services/feeService';
 import './FeeTypeManagement.css'; // Sử dụng file CSS mới
+import { useAuth } from '../context/AuthContext'; // Import hook useAuth
 
 const FeeTypeManagement = () => {
+
+  const { user } = useAuth(); // Lấy thông tin user đang đăng nhập
+  // Xác định quyền hạn của người dùng
+  const canEdit = user?.roles?.includes('Kế toán') || user?.roles?.includes('Admin');
   // State quản lý dữ liệu
   const [feeTypes, setFeeTypes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -106,7 +111,9 @@ const FeeTypeManagement = () => {
       <div className="page-header">
         <h1>Quản lý phí</h1>
         <div className="action-bar">
+          {canEdit && (
           <button className="add-btn" onClick={() => handleOpenModal()}>Thêm</button>
+        )}
           <input
             type="text"
             className="search-input"
@@ -127,7 +134,7 @@ const FeeTypeManagement = () => {
               <th>Đơn vị</th>
               <th>Đơn giá</th>
               <th>Chú thích</th>
-              <th>Hành động</th>
+              {canEdit && <th>Hành động</th>}
             </tr>
           </thead>
           <tbody>
@@ -138,10 +145,12 @@ const FeeTypeManagement = () => {
                 <td>{fee.unit}</td>
                 <td>{Number(fee.price).toLocaleString('vi-VN')}</td>
                 <td>{fee.description}</td>
-                <td className="action-cell">
-                  <button className="edit-btn" onClick={() => handleOpenModal(fee)}>Sửa</button>
-                  <button className="delete-btn" onClick={() => handleDelete(fee.id)}>Xóa</button>
-                </td>
+                {canEdit && (
+                  <td className="action-cell">
+                    <button className="edit-btn" onClick={() => handleOpenModal(fee)}>Sửa</button>
+                    <button className="delete-btn" onClick={() => handleDelete(fee.id)}>Xóa</button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -149,7 +158,7 @@ const FeeTypeManagement = () => {
       </div>
 
       {/* Modal để Thêm/Sửa */}
-      {isModalOpen && (
+      {isModalOpen && canEdit && (
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">

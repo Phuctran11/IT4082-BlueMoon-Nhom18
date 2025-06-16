@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; // Import hook useAuth để lấy thông tin người dùng
 
 import * as financeService from '../services/financeService';
 import * as feeService from '../services/feeService';
@@ -10,6 +11,8 @@ import './FeePeriodDetailPage.css'; // Dùng lại CSS cũ
 
 const FeePeriodDetailPage = () => {
   const { id: feePeriodId } = useParams(); // Lấy ID của đợt thu
+  const { user } = useAuth(); // Lấy thông tin người dùng từ context
+  const canEdit = user?.roles?.includes('Kế toán') || user?.roles?.includes('Admin'); // Kiểm tra quyền hạn
   
   // State cho dữ liệu
   const [period, setPeriod] = useState(null); // Thông tin đợt thu
@@ -119,21 +122,29 @@ const FeePeriodDetailPage = () => {
     <div className="page-container">
       <div className="page-header">
         <h1>Chi tiết Đợt thu: {period.name}</h1>
-        <button onClick={handleGenerateInvoices} className="generate-btn">
-          Phát hành Hóa đơn hàng loạt
-        </button>
+        {canEdit && (
+          <button onClick={handleGenerateInvoices} className="generate-btn">
+            Phát hành Hóa đơn hàng loạt
+          </button>
+        )}
       </div>
 
       <div className="action-card">
         <h2>Danh sách Khoản thu trong Đợt</h2>
-        <button className="add-btn" onClick={() => handleOpenModal()}>Thêm Khoản thu</button>
+        {canEdit && (
+          <button className="add-btn" onClick={() => handleOpenModal()}>Thêm Khoản thu</button>
+        )}
       </div>
 
       <div className="table-container">
         <table className="data-table">
           <thead>
             <tr>
-              <th>Tên Khoản thu</th><th>Số tiền</th><th>Loại hình</th><th>Mô tả</th><th>Hành động</th>
+              <th>Tên Khoản thu</th>
+              <th>Số tiền</th>
+              <th>Loại hình</th>
+              <th>Mô tả</th>
+              {canEdit && <th>Hành động</th>}
             </tr>
           </thead>
           <tbody>
@@ -154,10 +165,12 @@ const FeePeriodDetailPage = () => {
                     <span className="no-description">(Không có)</span>
                   )}
                 </td>
-                <td className="action-cell">
-                  <button className="edit-btn" onClick={() => handleOpenModal(pf)}>Sửa</button>
-                  <button className="delete-btn" onClick={() => handleDelete(pf.id)}>Xóa</button>
-                </td>
+                {canEdit && (
+                  <td className="action-cell">
+                    <button className="edit-btn" onClick={() => handleOpenModal(pf)}>Sửa</button>
+                    <button className="delete-btn" onClick={() => handleDelete(pf.id)}>Xóa</button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

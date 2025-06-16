@@ -7,18 +7,17 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 
 // Tất cả các route dưới đây đều yêu cầu đăng nhập và phải là Kế toán
 router.use(protect);
-router.use(authorize('Kế toán'));
 
-// Route CRUD cho Đợt thu (bạn sẽ cần tạo các hàm này trong controller)
 router.route('/')
-  .get(feePeriodController.getAllFeePeriods)
-  .post(feePeriodController.createFeePeriod);
+  // SỬA Ở ĐÂY: Cho phép các vai trò khác xem danh sách
+  .get(authorize('Kế toán', 'Tổ trưởng', 'Tổ phó', 'Cư dân', 'Admin'), feePeriodController.getAllFeePeriods)
+  .post(authorize('Kế toán', 'Admin'), feePeriodController.createFeePeriod);
 
-// Route để lấy thông tin chi tiết của một Đợt thu
 router.route('/:id')
-  .get(feePeriodController.getFeePeriodById);
+  // SỬA Ở ĐÂY: Cho phép các vai trò khác xem chi tiết
+  .get(authorize('Kế toán', 'Tổ trưởng', 'Tổ phó', 'Cư dân', 'Admin'), feePeriodController.getFeePeriodById);
 
-// Route đặc biệt để lập hóa đơn
-router.post('/:feePeriodId/generate-invoices', financeController.generateInvoices);
+// Chỉ Kế toán/Admin mới được lập hóa đơn
+router.post('/:feePeriodId/generate-invoices', authorize('Kế toán', 'Admin'), financeController.generateInvoices);
 
 module.exports = router;

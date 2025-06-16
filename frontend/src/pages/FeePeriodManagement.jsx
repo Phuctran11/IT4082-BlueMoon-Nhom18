@@ -3,8 +3,13 @@ import { Link } from 'react-router-dom';
 import * as financeService from '../services/financeService';
 import Spinner from '../components/common/Spinner'; // Giả sử bạn có component Spinner
 import './FeePeriodManagement.css'; // Sẽ tạo file CSS sau
+import { useAuth } from '../context/AuthContext'; // Import hook useAuth để lấy thông tin người dùng
 
 const FeePeriodManagement = () => {
+
+  const { user } = useAuth();
+  const canEdit = user?.roles?.includes('Kế toán') || user?.roles?.includes('Admin');
+
   const [periods, setPeriods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -73,7 +78,9 @@ const FeePeriodManagement = () => {
       <div className="page-header">
         <h1>Quản lý Đợt thu phí</h1>
         {/* Gắn sự kiện onClick cho nút */}
-        <button className="add-btn" onClick={() => handleOpenModal()}>Thêm Đợt thu mới</button>
+        {canEdit && (
+          <button className="add-btn" onClick={() => handleOpenModal()}>Thêm Đợt thu mới</button>
+        )}
       </div>
 
       <div className="list-container">
@@ -88,8 +95,9 @@ const FeePeriodManagement = () => {
                 </div>
               </div>
               <Link to={`/fee-periods/${period.id}`} className="details-btn">
-                Quản lý Khoản thu →
-              </Link>
+              {/* Thay đổi text của nút tùy theo quyền */}
+              {canEdit ? 'Quản lý Khoản thu →' : 'Xem chi tiết →'}
+            </Link>
             </div>
           ))
         ) : (
@@ -98,7 +106,7 @@ const FeePeriodManagement = () => {
       </div>
 
       {/* MODAL ĐỂ THÊM ĐỢT THU MỚI */}
-      {isModalOpen && (
+      {isModalOpen && canEdit && (
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">

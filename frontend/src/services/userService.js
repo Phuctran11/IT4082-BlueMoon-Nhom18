@@ -11,3 +11,8 @@ export const assignRole = (userId, roleId) => apiClient.post(`/users/${userId}/a
 export const updateUserStatus = (userId, status) => apiClient.patch(`/users/${userId}/status`, { status });
 
 export const deleteUser = (userId) => apiClient.delete(`/users/${userId}`);
+
+export const assignHousehold = (userId, householdId) => {
+  // Gửi householdId, có thể là null
+  return apiClient.put(`/users/${userId}/assign-household`, { householdId });
+};
